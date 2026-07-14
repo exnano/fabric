@@ -34,7 +34,7 @@ struct ServiceListView: View {
             DockPresenceController.managementWindowDidClose()
         }
         .toolbar {
-            ToolbarItem(placement: .primaryAction) {
+            ToolbarItem(placement: .automatic) {
                 loginItemControl
             }
 
@@ -113,7 +113,7 @@ struct ServiceListView: View {
     private var loginItemControl: some View {
         HStack(spacing: 6) {
             Toggle(
-                "Open at Login",
+                "Start at Login",
                 isOn: Binding(
                     get: { loginItem.isEnabled },
                     set: { loginItem.setEnabled($0) }
@@ -122,7 +122,7 @@ struct ServiceListView: View {
             .toggleStyle(.checkbox)
             .controlSize(.small)
             .disabled(loginItem.isUpdating)
-            .help("Open Fabric automatically after you sign in to macOS")
+            .help("Start Fabric automatically after you sign in to macOS")
             .accessibilityValue(loginItem.isEnabled ? "Enabled" : "Disabled")
 
             if loginItem.isUpdating {
@@ -159,3 +159,4 @@ private struct MetricView: View {
         .frame(minWidth: 76, alignment: .trailing)
     }
 }
+
