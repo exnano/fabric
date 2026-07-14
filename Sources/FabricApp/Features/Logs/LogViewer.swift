@@ -60,9 +60,10 @@ struct LogViewer: View {
 
             Divider()
 
-            ScrollView([.horizontal, .vertical]) {
+            ScrollView(.vertical) {
                 Text(content)
                     .font(.system(.caption, design: .monospaced))
+                    .multilineTextAlignment(.leading)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                     .padding(16)
