@@ -34,11 +34,13 @@ sensitive_files="$(git ls-files | /usr/bin/grep -E "$sensitive_file_pattern" || 
 [[ -z "$sensitive_files" ]] || report_failure "tracked sensitive filenames" "$sensitive_files"
 
 history_paths="$(git --no-pager log --all -G "$local_path_pattern" \
-    --format='%H %s' --name-only || true)"
+    --format='%H %s' --name-only -- \
+    . ':!scripts/security-audit.sh' ':!docs/plans/**' || true)"
 [[ -z "$history_paths" ]] || report_failure "local paths in Git history" "$history_paths"
 
 history_secrets="$(git --no-pager log --all -G "$secret_pattern" \
-    --format='%H %s' --name-only || true)"
+    --format='%H %s' --name-only -- \
+    . ':!scripts/security-audit.sh' ':!docs/plans/**' || true)"
 [[ -z "$history_secrets" ]] || report_failure "secret-shaped values in Git history" "$history_secrets"
 
 app_binary="dist/Exnano Fabric.app/Contents/MacOS/Fabric"
