@@ -4,6 +4,8 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-07-14
+
 ### Added
 
 - Add a native Start at login checkbox backed by macOS `SMAppService` registration.

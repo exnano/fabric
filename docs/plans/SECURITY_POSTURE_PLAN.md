@@ -65,7 +65,7 @@ A test fixture contains a synthetic `/Users/developer/...` LaunchAgent path. It 
 - [x] Changed notarization setup documentation to use secure interactive prompts rather than placing an app-specific password in shell history.
 - [x] Confirmed signing identity/profile names are supplied through environment variables.
 
-**Result:** Private signing keys remain in Keychain. Notarization credentials are not available in the repository, environment, or current Keychain profile; notarization remains blocked until an authorized operator creates the profile.
+**Result:** Private signing keys and notarization credentials remain in Keychain and are not present in the repository or release environment. The authorized profile was validated against Apple's notary service.
 
 ### Runtime process safety
 
@@ -121,8 +121,10 @@ A test fixture contains a synthetic `/Users/developer/...` LaunchAgent path. It 
 - [x] Distribution script verifies the code signature.
 - [x] Distribution script submits through `notarytool`, waits for acceptance, staples, validates, and runs Gatekeeper assessment.
 - [x] Installation into `~/Applications` happens only after successful notarization and validation.
-- [ ] Create the authorized `notarytool` Keychain profile and execute a successful notarized distribution.
-- [ ] Record release artifact checksums in release notes or CI provenance.
+- [x] Create the authorized `notarytool` Keychain profile and execute a successful notarized distribution.
+- [x] Record the release ZIP checksum for the notarized artifact.
+
+**Release 0.1.2 evidence:** Apple accepted submission `6a4f5df7-d193-4849-b03d-60d338a50ad2`. Stapling, Gatekeeper assessment, installed-bundle signature verification, and ticket validation passed. SHA-256 for `Exnano-Fabric-0.1.2.zip`: `d811017693c8cb72308a7866e4c8fce3e0ffed45cb41fbda46759dc9e93a5375`.
 
 ## Remediations completed during this execution
 
@@ -157,10 +159,10 @@ The distribution command must fail closed if the Developer ID identity or notari
 
 ## CI and governance follow-ups
 
-### Priority 0 — before distributing binaries
+### Priority 0 — release verification
 
-- [ ] Create and validate the notarization Keychain profile on the authorized release machine.
-- [ ] Run `make distribute` and retain Apple notarization evidence.
+- [x] Create and validate the notarization Keychain profile on the authorized release machine.
+- [x] Run `make distribute` and retain Apple notarization evidence.
 - [ ] Verify Start at login using the installed, stable bundle path.
 - [ ] Decide whether the current public Git author identity is acceptable; if not, coordinate a history rewrite and force-push with all collaborators.
 

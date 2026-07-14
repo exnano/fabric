@@ -2,7 +2,7 @@
 
 **Fabric** is a native macOS SwiftUI menu-bar application for installing, pinning, and managing local development services provided by Homebrew. The distributed application name is **Exnano Fabric.app**.
 
-> Current version: **0.1.1 (build 2)** — native workflow and UI refinement release.
+> Current version: **0.1.2 (build 3)** — login, adaptive icon, distribution, and security hardening release.
 
 ## Current capabilities
 
