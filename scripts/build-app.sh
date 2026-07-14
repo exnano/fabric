@@ -8,6 +8,7 @@ APP_DIR="$ROOT_DIR/dist/Exnano Fabric.app"
 CONTENTS_DIR="$APP_DIR/Contents"
 MACOS_DIR="$CONTENTS_DIR/MacOS"
 RESOURCES_DIR="$CONTENTS_DIR/Resources"
+ICON_BUILD_DIR="$ROOT_DIR/.build/icon-assets"
 
 MARKETING_VERSION="$(/usr/bin/plutil -extract marketingVersion raw "$VERSION_FILE")"
 BUILD_NUMBER="$(/usr/bin/plutil -extract buildNumber raw "$VERSION_FILE")"
@@ -31,9 +32,17 @@ while IFS= read -r rpath; do
     esac
 done < <(/usr/bin/otool -l "$MACOS_DIR/Fabric" | /usr/bin/awk \
     '/cmd LC_RPATH/ { getline; getline; print $2 }')
-/bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon.icns" "$RESOURCES_DIR/FabricIcon.icns"
-/bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon-Light.png" "$RESOURCES_DIR/FabricIcon-Light.png"
-/bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon-Dark.png" "$RESOURCES_DIR/FabricIcon-Dark.png"
+/bin/rm -rf "$ICON_BUILD_DIR"
+/bin/mkdir -p "$ICON_BUILD_DIR"
+/usr/bin/xcrun actool "$ROOT_DIR/Assets/AppIcon/ExnanoFabric.icon" \
+    --compile "$ICON_BUILD_DIR" \
+    --platform macosx \
+    --target-device mac \
+    --minimum-deployment-target 15.0 \
+    --app-icon ExnanoFabric \
+    --output-partial-info-plist "$ICON_BUILD_DIR/partial.plist"
+/bin/cp "$ICON_BUILD_DIR/Assets.car" "$RESOURCES_DIR/Assets.car"
+/bin/cp "$ICON_BUILD_DIR/ExnanoFabric.icns" "$RESOURCES_DIR/ExnanoFabric.icns"
 
 /usr/bin/sed \
     -e "s/__MARKETING_VERSION__/$MARKETING_VERSION/g" \

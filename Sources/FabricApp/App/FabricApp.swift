@@ -44,22 +44,11 @@ struct FabricApp: App {
 @MainActor
 final class FabricApplicationDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
-        ApplicationIconController.updateForCurrentAppearance()
-        DistributedNotificationCenter.default().addObserver(
-            self,
-            selector: #selector(systemAppearanceDidChange),
-            name: Notification.Name("AppleInterfaceThemeChangedNotification"),
-            object: nil
-        )
-
         // Fabric starts as an LSUIElement app. Activating here brings the initial
         // management window forward; its appearance then controls Dock visibility.
         NSApplication.shared.activate(ignoringOtherApps: true)
     }
 
-    @objc private func systemAppearanceDidChange(_ notification: Notification) {
-        ApplicationIconController.updateForCurrentAppearance()
-    }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
         false

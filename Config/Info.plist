@@ -11,7 +11,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.exnano.fabric</string>
     <key>CFBundleIconFile</key>
-    <string>FabricIcon</string>
+    <string>ExnanoFabric</string>
+    <key>CFBundleIconName</key>
+    <string>ExnanoFabric</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
