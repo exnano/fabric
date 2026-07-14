@@ -60,9 +60,17 @@ public struct FoundationProcessRunner: ProcessRunning, Sendable {
         process.standardOutput = standardOutputHandle
         process.standardError = standardErrorHandle
 
-        // GUI applications receive a much smaller environment than interactive shells.
-        // Start from the current environment but make common system paths deterministic.
-        var environment = ProcessInfo.processInfo.environment
+        // Do not forward Fabric's complete environment. Parent processes can contain
+        // signing, CI, or credential variables that Homebrew services do not need.
+        let inheritedEnvironment = ProcessInfo.processInfo.environment
+        let allowedInheritedKeys = [
+            "HOME", "USER", "LOGNAME", "TMPDIR", "LANG", "LC_ALL", "SHELL",
+        ]
+        var environment = Dictionary(
+            uniqueKeysWithValues: allowedInheritedKeys.compactMap { key in
+                inheritedEnvironment[key].map { (key, $0) }
+            }
+        )
         environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         request.environment.forEach { environment[$0.key] = $0.value }
         process.environment = environment
