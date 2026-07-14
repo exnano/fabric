@@ -114,6 +114,7 @@ scripts/                    # App bundling, launch, and version tools
 ## Safety model
 
 - No shell command interpolation; executables receive argument arrays.
+- Child processes receive a minimal allowlisted environment instead of Fabric's complete environment.
 - No automatic `brew update`.
 - No `sudo` for Homebrew operations.
 - No silent third-party tap installation.
@@ -121,6 +122,14 @@ scripts/                    # App bundling, launch, and version tools
 - Services should bind to loopback by default in the Fabric-owned runtime.
 - Database major upgrades will require explicit compatibility and backup workflows.
 
+Run the repeatable repository and release-binary checks with:
+
+```bash
+make security-audit
+```
+
+The executed posture, findings, remediations, and release gates are documented in [`docs/plans/SECURITY_POSTURE_PLAN.md`](docs/plans/SECURITY_POSTURE_PLAN.md).
+
 ## Development status
 
-Fabric is pre-release software. `0.1.0` establishes the native app, package locking, persistence, and Homebrew bridge. The detailed roadmap and managed todo list live in [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md); architectural decisions live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Fabric is pre-release software. `0.1.1` includes the native app, package locking, persistence, Homebrew bridge, menu-bar controls, login-item management, and release hardening. The detailed roadmap and managed todo list live in [`docs/MASTER_PLAN.md`](docs/MASTER_PLAN.md); architectural decisions live in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

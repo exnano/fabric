@@ -10,6 +10,12 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 - Add a Developer ID signing, Apple notarization, stapling, Gatekeeper validation, and `~/Applications` installation pipeline.
 - Add a branded macOS application icon with light and dark appearance variants.
 
+### Security
+
+- Isolate child-process environments from unrelated parent credentials and CI values.
+- Remove local developer-toolchain rpaths and metadata from release artifacts.
+- Add repeatable tracked-tree, history, release-binary, and sensitive-file audit checks.
+
 ### Fixed
 
 - Dismiss the menu-bar panel and focus the management window after choosing Open Fabric.

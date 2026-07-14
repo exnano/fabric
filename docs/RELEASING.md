@@ -16,11 +16,10 @@ Fabric's release pipeline reads credentials from the login keychain and environm
 Store a notarization profile once:
 
 ```bash
-xcrun notarytool store-credentials "exnano-fabric" \
-  --apple-id "YOUR_APPLE_ID" \
-  --team-id "YOUR_TEAM_ID" \
-  --password "YOUR_APP_SPECIFIC_PASSWORD"
+xcrun notarytool store-credentials "exnano-fabric"
 ```
+
+`notarytool` securely prompts for the Apple ID, Team ID, and app-specific password without placing them in shell history.
 
 Then export the certificate identity and profile name for the release shell:
 
