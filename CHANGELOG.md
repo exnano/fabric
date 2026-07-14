@@ -4,9 +4,12 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-07-14
+
 ### Changed
 
-- Move Start at login into its own toolbar item, independent from Refresh and Add Service.
+- Present Start at login as a lightweight leading toolbar checkbox, independent from trailing actions.
+- Install notarized releases globally in `/Applications` and remove the prior user-level copy after validation.
 
 ## [0.1.2] - 2026-07-14
 

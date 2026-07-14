@@ -2,7 +2,7 @@
 
 **Fabric** is a native macOS SwiftUI menu-bar application for installing, pinning, and managing local development services provided by Homebrew. The distributed application name is **Exnano Fabric.app**.
 
-> Current version: **0.1.2 (build 3)** — login, adaptive icon, distribution, and security hardening release.
+> Current version: **0.1.3 (build 4)** — toolbar refinement and global installation release.
 
 ## Current capabilities
 
@@ -72,7 +72,7 @@ For a one-command debug build and launch:
 make run
 ```
 
-`make app` creates an ad-hoc signed development bundle. `make distribute` creates a hardened Developer ID build, submits it for Apple notarization, staples the ticket, and installs it in `~/Applications`; see [`docs/RELEASING.md`](docs/RELEASING.md) for credential setup.
+`make app` creates an ad-hoc signed development bundle. `make distribute` creates a hardened Developer ID build, submits it for Apple notarization, staples the ticket, and installs it globally as `/Applications/Exnano Fabric.app`; see [`docs/RELEASING.md`](docs/RELEASING.md) for credential setup.
 
 ## Versioning
 

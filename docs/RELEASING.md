@@ -36,14 +36,14 @@ swift test
 make distribute
 ```
 
-`make distribute` performs a release build, enables the hardened runtime, applies a timestamped Developer ID signature, submits a ZIP to Apple, waits for acceptance, staples and validates the ticket, runs Gatekeeper assessment, and copies the final app to `~/Applications/Exnano Fabric.app`.
+`make distribute` performs a release build, enables the hardened runtime, applies a timestamped Developer ID signature, submits a ZIP to Apple, waits for acceptance, staples and validates the ticket, runs Gatekeeper assessment, and copies the final app to `/Applications/Exnano Fabric.app`.
 
 Then:
 
 1. Update `docs/MASTER_PLAN.md` progress.
 2. Update `README.md` for every feature release.
 3. Add a dated section to `CHANGELOG.md`.
-4. Manually launch `~/Applications/Exnano Fabric.app` and verify menu-bar/window and Start at login behavior.
+4. Manually launch `/Applications/Exnano Fabric.app` and verify menu-bar/window and Start at login behavior.
 5. Commit the release metadata.
 6. Create an annotated `v<version>` tag only when the release is approved.
 

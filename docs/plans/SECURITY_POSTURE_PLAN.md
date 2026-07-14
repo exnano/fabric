@@ -120,11 +120,13 @@ A test fixture contains a synthetic `/Users/developer/...` LaunchAgent path. It 
 - [x] Distribution script enables hardened runtime and timestamped Developer ID signing.
 - [x] Distribution script verifies the code signature.
 - [x] Distribution script submits through `notarytool`, waits for acceptance, staples, validates, and runs Gatekeeper assessment.
-- [x] Installation into `~/Applications` happens only after successful notarization and validation.
+- [x] Installation into global `/Applications` happens only after successful notarization and validation.
 - [x] Create the authorized `notarytool` Keychain profile and execute a successful notarized distribution.
 - [x] Record the release ZIP checksum for the notarized artifact.
 
 **Release 0.1.2 evidence:** Apple accepted submission `6a4f5df7-d193-4849-b03d-60d338a50ad2`. Stapling, Gatekeeper assessment, installed-bundle signature verification, and ticket validation passed. SHA-256 for `Exnano-Fabric-0.1.2.zip`: `d811017693c8cb72308a7866e4c8fce3e0ffed45cb41fbda46759dc9e93a5375`.
+
+**Release 0.1.3 evidence:** Apple accepted submission `686acebc-efdd-417e-ac28-3984fa387100`. The globally installed bundle passed signature, staple, and Gatekeeper validation. SHA-256 for `Exnano-Fabric-0.1.3.zip`: `f22eaaea1db3a491f67bea48dec58ed6caad0657ff10a719813f9411b2cbfa9f`.
 
 ## Remediations completed during this execution
 
