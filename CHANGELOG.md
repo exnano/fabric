@@ -10,6 +10,7 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ### Changed
 
+- Make Command-Q close the management window while Fabric continues running in the menu bar.
 - Redesign the dashboard with aligned service, status, lifecycle-action, and log columns.
 - Enlarge the Added and Running totals and use deterministic name/status ordering.
 - Restyle the Add Service catalog after native macOS System Settings patterns.
