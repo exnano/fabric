@@ -4,10 +4,18 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Changed
+
+- Redesign the dashboard with aligned service, status, lifecycle-action, and log columns.
+- Enlarge the Added and Running totals and use deterministic name/status ordering.
+- Restyle the Add Service catalog after native macOS System Settings patterns.
+
 ### Fixed
 
 - Present and activate the full management window automatically when Fabric launches.
 - Show Fabric in the Dock while its management window is open and hide it after the window closes.
+- Keep Add Service catalog rows clear of the footer controls.
+- Keep loaded log content left-aligned and wrap long lines within the viewer.
 
 ## [0.1.0] - 2026-07-14
 

@@ -14,7 +14,7 @@
 - Pins the installed formula so normal Homebrew upgrades do not move it unexpectedly.
 - Tracks whether a pin belonged to the user before Fabric touched it.
 - Lists added services with source, version, endpoints, and status.
-- Sorts services by name or status, ascending or descending.
+- Orders services consistently by localized name, then status when names match.
 - Starts, stops, and restarts services.
 - Opens service logs when Homebrew/Valet exposes readable log paths.
 - Persists registrations under `~/Library/Application Support/Exnano Fabric/services.json`.
