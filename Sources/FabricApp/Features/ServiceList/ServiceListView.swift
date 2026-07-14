@@ -34,9 +34,11 @@ struct ServiceListView: View {
             DockPresenceController.managementWindowDidClose()
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
+            ToolbarItem(placement: .automatic) {
                 loginItemControl
+            }
 
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     Task { await model.refresh() }
                 } label: {
@@ -44,7 +46,9 @@ struct ServiceListView: View {
                 }
                 .disabled(model.isRefreshing)
                 .help("Refresh service status now. Fabric also refreshes automatically every eight seconds.")
+            }
 
+            ToolbarItem(placement: .primaryAction) {
                 Button {
                     model.presentAddService()
                 } label: {
