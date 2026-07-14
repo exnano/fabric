@@ -37,8 +37,6 @@ struct ServiceListView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
-                sortControls
-
                 Button {
                     Task { await model.refresh() }
                 } label: {
@@ -90,24 +88,6 @@ struct ServiceListView: View {
         .background(.bar)
     }
 
-    private var sortControls: some View {
-        HStack(spacing: 4) {
-            Picker("Sort", selection: $model.sort) {
-                ForEach(ServiceSort.allCases) { option in
-                    Text(option.displayName).tag(option)
-                }
-            }
-            .pickerStyle(.menu)
-            .frame(width: 100)
-
-            Button {
-                model.sortAscending.toggle()
-            } label: {
-                Image(systemName: model.sortAscending ? "arrow.up" : "arrow.down")
-            }
-            .help(model.sortAscending ? "Ascending" : "Descending")
-        }
-    }
 }
 
 private struct MetricView: View {

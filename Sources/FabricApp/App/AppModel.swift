@@ -29,8 +29,6 @@ final class AppModel: ObservableObject {
     @Published private(set) var isLoadingCatalog = false
     @Published private(set) var isAddingService = false
 
-    @Published var sort: ServiceSort = .name
-    @Published var sortAscending = true
     @Published var isAddServicePresented = false
     @Published var logPresentation: LogPresentation?
     @Published var alert: AppAlert?
@@ -42,22 +40,15 @@ final class AppModel: ObservableObject {
         self.runtime = runtime
     }
 
+    /// Dashboard ordering is intentionally stable: localized service name first,
+    /// then health status when two instances share the same name.
     var sortedServices: [ManagedService] {
         services.sorted { lhs, rhs in
-            let result: ComparisonResult
-            switch sort {
-            case .name:
-                result = lhs.instance.name.localizedStandardCompare(rhs.instance.name)
-            case .status:
-                if lhs.runtime.status.sortPriority == rhs.runtime.status.sortPriority {
-                    result = lhs.instance.name.localizedStandardCompare(rhs.instance.name)
-                } else {
-                    result = lhs.runtime.status.sortPriority < rhs.runtime.status.sortPriority
-                        ? .orderedAscending
-                        : .orderedDescending
-                }
+            let nameOrder = lhs.instance.name.localizedStandardCompare(rhs.instance.name)
+            if nameOrder != .orderedSame {
+                return nameOrder == .orderedAscending
             }
-            return sortAscending ? result == .orderedAscending : result == .orderedDescending
+            return lhs.runtime.status.sortPriority < rhs.runtime.status.sortPriority
         }
     }
 
