@@ -49,7 +49,7 @@ struct AddServiceView: View {
             .navigationTitle("Add Service")
             .frame(minWidth: 320, idealWidth: 340, maxWidth: 420)
             .navigationSplitViewColumnWidth(min: 320, ideal: 340, max: 420)
-            .searchable(text: $searchText, prompt: "Search services")
+            .searchable(text: $searchText, placement: .sidebar, prompt: "Search services")
         } detail: {
             if let item = selectedItem {
                 serviceDetails(item)
