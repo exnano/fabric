@@ -35,6 +35,8 @@ struct ServiceListView: View {
         }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
+                loginItemControl
+
                 Button {
                     Task { await model.refresh() }
                 } label: {
@@ -96,8 +98,6 @@ struct ServiceListView: View {
 
             Spacer()
 
-            loginItemControl
-
             MetricView(value: model.services.count, label: "Added")
             MetricView(value: model.runningCount, label: "Running", color: .green)
         }
@@ -107,7 +107,7 @@ struct ServiceListView: View {
     }
 
     private var loginItemControl: some View {
-        VStack(alignment: .leading, spacing: 3) {
+        HStack(spacing: 6) {
             Toggle(
                 "Start at login",
                 isOn: Binding(
@@ -117,21 +117,19 @@ struct ServiceListView: View {
             )
             .toggleStyle(.checkbox)
             .disabled(loginItem.isUpdating)
+            .fixedSize()
             .help("Launch Fabric automatically after you sign in to macOS")
 
             if loginItem.requiresApproval {
-                Text("Approval required in System Settings")
-                    .font(.caption2)
+                Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
+                    .help("Approval required in System Settings > General > Login Items")
             } else if let errorMessage = loginItem.errorMessage {
-                Text(errorMessage)
-                    .font(.caption2)
+                Image(systemName: "exclamationmark.circle.fill")
                     .foregroundStyle(.red)
-                    .lineLimit(2)
-                    .frame(maxWidth: 180, alignment: .leading)
+                    .help(errorMessage)
             }
         }
-        .frame(minWidth: 120, alignment: .leading)
     }
 }
 
