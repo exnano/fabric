@@ -16,4 +16,11 @@ enum DockPresenceController {
 
         NSApplication.shared.setActivationPolicy(.accessory)
     }
+
+    static func closeManagementWindow() {
+        let managementWindow = NSApplication.shared.windows.first {
+            $0.title == "Exnano Fabric"
+        }
+        managementWindow?.performClose(nil)
+    }
 }

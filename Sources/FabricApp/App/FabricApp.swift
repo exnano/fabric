@@ -30,6 +30,14 @@ struct FabricApp: App {
         .defaultSize(width: 940, height: 640)
         .defaultLaunchBehavior(.presented)
         .restorationBehavior(.disabled)
+        .commands {
+            CommandGroup(replacing: .appTermination) {
+                Button("Close Fabric Window") {
+                    DockPresenceController.closeManagementWindow()
+                }
+                .keyboardShortcut("q", modifiers: .command)
+            }
+        }
     }
 }
 

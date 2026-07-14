@@ -105,10 +105,9 @@ struct MenuBarContentView: View {
 
             Spacer()
 
-            Button("Quit") {
+            Button("Quit Fabric") {
                 NSApplication.shared.terminate(nil)
             }
-            .keyboardShortcut("q")
         }
         .padding(10)
     }
