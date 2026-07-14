@@ -21,8 +21,25 @@ fi
 /bin/rm -rf "$ICONSET_DIR"
 /bin/mkdir -p "$ICONSET_DIR"
 
-/bin/cp "$SOURCE" "$LIGHT_ICON"
-/bin/cp "$SOURCE" "$DARK_ICON"
+function render_icon() {
+    local surface="$1"
+    local edge="$2"
+    local destination="$3"
+
+    magick \
+        -size 1024x1024 xc:none \
+        -fill "$surface" \
+        -draw "roundrectangle 64,64 960,960 224,224" \
+        -stroke "$edge" -strokewidth 2 -fill none \
+        -draw "roundrectangle 65,65 959,959 223,223" \
+        \( "$SOURCE" -resize 860x860 \) \
+        -gravity center -compose over -composite \
+        -strip -depth 8 \
+        "$destination"
+}
+
+render_icon "#E9EEFF" "#FFFFFFB8" "$LIGHT_ICON"
+render_icon "#171A2C" "#FFFFFF38" "$DARK_ICON"
 
 for specification in \
     "16 icon_16x16.png" \
