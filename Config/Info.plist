@@ -10,6 +10,8 @@
     <string>Fabric</string>
     <key>CFBundleIdentifier</key>
     <string>com.exnano.fabric</string>
+    <key>CFBundleIconFile</key>
+    <string>FabricIcon</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>

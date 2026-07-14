@@ -20,6 +20,9 @@ BIN_DIR="$(/usr/bin/swift build --configuration "$CONFIGURATION" --show-bin-path
 /bin/mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 /bin/cp "$BIN_DIR/Fabric" "$MACOS_DIR/Fabric"
 /bin/chmod 755 "$MACOS_DIR/Fabric"
+/bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon.icns" "$RESOURCES_DIR/FabricIcon.icns"
+/bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon-Light.png" "$RESOURCES_DIR/FabricIcon-Light.png"
+/bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon-Dark.png" "$RESOURCES_DIR/FabricIcon-Dark.png"
 
 /usr/bin/sed \
     -e "s/__MARKETING_VERSION__/$MARKETING_VERSION/g" \
