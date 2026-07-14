@@ -25,6 +25,9 @@ struct ServiceListView: View {
             } else {
                 serviceList
             }
+
+            Divider()
+            loginItemFooter
         }
         .onAppear {
             DockPresenceController.managementWindowDidOpen()
@@ -34,10 +37,6 @@ struct ServiceListView: View {
             DockPresenceController.managementWindowDidClose()
         }
         .toolbar {
-            ToolbarItem(placement: .automatic) {
-                loginItemControl
-            }
-
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     Task { await model.refresh() }
@@ -107,6 +106,16 @@ struct ServiceListView: View {
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 22)
+        .background(.bar)
+    }
+
+    private var loginItemFooter: some View {
+        HStack {
+            Spacer()
+            loginItemControl
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
         .background(.bar)
     }
 
