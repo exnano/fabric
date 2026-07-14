@@ -7,7 +7,8 @@ struct MenuBarContentView: View {
     @EnvironmentObject private var model: AppModel
 
     private var serviceListHeight: CGFloat {
-        min(CGFloat(model.sortedServices.count) * 62, 320)
+        let visibleRows = min(model.sortedServices.count, 5)
+        return CGFloat(visibleRows) * 54
     }
 
     var body: some View {
@@ -18,7 +19,7 @@ struct MenuBarContentView: View {
             Divider()
             footer
         }
-        .frame(width: 500)
+        .frame(width: 430)
     }
 
     private var header: some View {
@@ -42,7 +43,7 @@ struct MenuBarContentView: View {
             .disabled(model.isRefreshing)
             .help("Refresh service status")
         }
-        .padding(14)
+        .padding(12)
     }
 
     @ViewBuilder
@@ -60,18 +61,17 @@ struct MenuBarContentView: View {
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.tertiary)
                 }
-                .padding(.horizontal, 14)
-                .padding(.top, 10)
-                .padding(.bottom, 5)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+                .padding(.bottom, 4)
 
                 ScrollView {
-                    LazyVStack(spacing: 2) {
+                    LazyVStack(spacing: 0) {
                         ForEach(model.sortedServices) { service in
                             MenuBarServiceRow(service: service)
                         }
                     }
-                    .padding(.horizontal, 6)
-                    .padding(.bottom, 8)
+                    .padding(.horizontal, 4)
                 }
                 // MenuBarExtra does not infer a ScrollView's intrinsic height. An
                 // explicit viewport prevents a non-empty service list collapsing.
@@ -92,8 +92,8 @@ struct MenuBarContentView: View {
                 .foregroundStyle(.secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding(.vertical, 24)
-        .padding(.horizontal, 18)
+        .padding(.vertical, 20)
+        .padding(.horizontal, 16)
     }
 
     private var footer: some View {
@@ -109,7 +109,7 @@ struct MenuBarContentView: View {
                 NSApplication.shared.terminate(nil)
             }
         }
-        .padding(10)
+        .padding(8)
     }
 
     private func openManagementWindow() {
@@ -135,7 +135,7 @@ private struct MenuBarServiceRow: View {
     }
 
     var body: some View {
-        HStack(spacing: 10) {
+        HStack(spacing: 8) {
             Image(systemName: service.instance.kind.symbolName)
                 .frame(width: 24)
                 .foregroundStyle(.secondary)
@@ -159,23 +159,23 @@ private struct MenuBarServiceRow: View {
             }
             .font(.caption.weight(.medium))
             .foregroundStyle(statusColor)
-            .frame(width: 70, alignment: .leading)
+            .frame(width: 66, alignment: .leading)
 
             if isBusy {
                 ProgressView()
                     .controlSize(.small)
-                    .frame(width: 102)
+                    .frame(width: 94)
             } else {
                 HStack(spacing: 4) {
                     actionButton(.start, symbol: "play.fill")
                     actionButton(.stop, symbol: "stop.fill")
                     actionButton(.restart, symbol: "arrow.clockwise")
                 }
-                .frame(width: 102, alignment: .trailing)
+                .frame(width: 94, alignment: .trailing)
             }
         }
-        .padding(.horizontal, 8)
-        .padding(.vertical, 7)
+        .padding(.horizontal, 7)
+        .frame(height: 54)
     }
 
     private func actionButton(_ action: ServiceAction, symbol: String) -> some View {
