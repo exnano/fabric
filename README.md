@@ -6,8 +6,8 @@
 
 ## Current capabilities
 
-- Runs as a menu-bar utility and stays available when its management window closes.
-- Opens one native service-management window from the menu bar.
+- Opens its native service-management window automatically at launch.
+- Keeps a menu-bar control available and stays running when the management window closes.
 - Discovers supported versioned formulae from the user's actual Homebrew catalog.
 - Installs a selected formula without automatically running `brew update`.
 - Pins the installed formula so normal Homebrew upgrades do not move it unexpectedly.

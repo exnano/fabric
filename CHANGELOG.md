@@ -2,6 +2,12 @@
 
 All notable changes to Exnano Fabric are documented here. The project follows Semantic Versioning.
 
+## [Unreleased]
+
+### Fixed
+
+- Present and activate the full management window automatically when Fabric launches.
+
 ## [0.1.0] - 2026-07-14
 
 ### Added
