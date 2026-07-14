@@ -47,6 +47,7 @@ struct AddServiceView: View {
                 }
             }
             .navigationTitle("Add Service")
+            .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 360)
             .searchable(text: $searchText, prompt: "Search services")
             .toolbar {
                 Button {
@@ -68,7 +69,7 @@ struct AddServiceView: View {
                 )
             }
         }
-        .frame(width: 820, height: 560)
+        .frame(width: 960, height: 560)
         .onChange(of: selectedItemID) { _, _ in
             if let item = selectedItem {
                 serviceName = item.displayName
