@@ -119,7 +119,7 @@ struct ServiceListView: View {
                     set: { loginItem.setEnabled($0) }
                 )
             )
-            .toggleStyle(.checkbox)
+            .toggleStyle(.switch)
             .controlSize(.small)
             .disabled(loginItem.isUpdating)
             .help("Start Fabric automatically after you sign in to macOS")
