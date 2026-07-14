@@ -1,3 +1,4 @@
+import AppKit
 import FabricCore
 import SwiftUI
 
@@ -27,12 +28,11 @@ struct AddServiceView: View {
             NavigationSplitView {
                 VStack(spacing: 0) {
                     CatalogSearchField(text: $searchText)
-                        .padding(.horizontal, 14)
-                        .padding(.top, 14)
-                        .padding(.bottom, 12)
-    
-                    Divider()
-    
+                        .frame(height: 28)
+                        .padding(.horizontal, 16)
+                        .padding(.top, 16)
+                        .padding(.bottom, 10)
+
                     Group {
                         if model.isLoadingCatalog, model.catalogItems.isEmpty {
                             VStack(spacing: 12) {
@@ -51,9 +51,13 @@ struct AddServiceView: View {
                             List(filteredItems, selection: $selectedItemID) { item in
                                 CatalogRow(item: item)
                                     .tag(item.id)
+                                    .listRowInsets(
+                                        EdgeInsets(top: 6, leading: 10, bottom: 6, trailing: 10)
+                                    )
                             }
                             .listStyle(.sidebar)
-                            .contentMargins(.vertical, 8, for: .scrollContent)
+                            .contentMargins(.top, 6, for: .scrollContent)
+                            .contentMargins(.bottom, 10, for: .scrollContent)
                         }
                     }
                 }
@@ -189,41 +193,40 @@ struct AddServiceView: View {
     }
 }
 
-private struct CatalogSearchField: View {
+/// AppKit's search field gives the sidebar the same sizing, focus ring, clear action,
+/// and keyboard behavior used throughout macOS System Settings.
+private struct CatalogSearchField: NSViewRepresentable {
     @Binding var text: String
-    @FocusState private var isFocused: Bool
 
-    var body: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.secondary)
+    func makeCoordinator() -> Coordinator {
+        Coordinator(text: $text)
+    }
 
-            TextField("Search services", text: $text)
-                .textFieldStyle(.plain)
-                .focused($isFocused)
+    func makeNSView(context: Context) -> NSSearchField {
+        let searchField = NSSearchField()
+        searchField.placeholderString = "Search services"
+        searchField.delegate = context.coordinator
+        searchField.sendsSearchStringImmediately = true
+        return searchField
+    }
 
-            if !text.isEmpty {
-                Button {
-                    text = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.tertiary)
-                }
-                .buttonStyle(.plain)
-                .help("Clear search")
-            }
+    func updateNSView(_ searchField: NSSearchField, context: Context) {
+        if searchField.stringValue != text {
+            searchField.stringValue = text
         }
-        .padding(.horizontal, 10)
-        .frame(height: 34)
-        .background(.background.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
-        .overlay {
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(
-                    isFocused ? Color.accentColor : Color.secondary.opacity(0.22),
-                    lineWidth: isFocused ? 2 : 1
-                )
+    }
+
+    final class Coordinator: NSObject, NSSearchFieldDelegate {
+        private let text: Binding<String>
+
+        init(text: Binding<String>) {
+            self.text = text
         }
-        .animation(.easeOut(duration: 0.16), value: isFocused)
+
+        func controlTextDidChange(_ notification: Notification) {
+            guard let searchField = notification.object as? NSSearchField else { return }
+            text.wrappedValue = searchField.stringValue
+        }
     }
 }
 
@@ -238,6 +241,7 @@ private struct CatalogRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.displayName)
+                    .font(.body.weight(.medium))
                     .lineLimit(1)
                     .layoutPriority(1)
                 Text(item.versionLabel)
@@ -253,6 +257,5 @@ private struct CatalogRow: View {
                     .help(item.isPinned ? "Pinned" : "Installed")
             }
         }
-        .padding(.vertical, 4)
     }
 }
