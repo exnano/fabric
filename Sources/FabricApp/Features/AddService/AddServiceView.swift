@@ -23,53 +23,56 @@ struct AddServiceView: View {
     }
 
     var body: some View {
-        NavigationSplitView {
-            VStack(spacing: 0) {
-                CatalogSearchField(text: $searchText)
-                    .padding(.horizontal, 14)
-                    .padding(.top, 14)
-                    .padding(.bottom, 12)
-
-                Divider()
-
-                Group {
-                    if model.isLoadingCatalog, model.catalogItems.isEmpty {
-                        VStack(spacing: 12) {
-                            ProgressView()
-                            Text("Reading Homebrew catalog…")
-                                .foregroundStyle(.secondary)
+        VStack(spacing: 0) {
+            NavigationSplitView {
+                VStack(spacing: 0) {
+                    CatalogSearchField(text: $searchText)
+                        .padding(.horizontal, 14)
+                        .padding(.top, 14)
+                        .padding(.bottom, 12)
+    
+                    Divider()
+    
+                    Group {
+                        if model.isLoadingCatalog, model.catalogItems.isEmpty {
+                            VStack(spacing: 12) {
+                                ProgressView()
+                                Text("Reading Homebrew catalog…")
+                                    .foregroundStyle(.secondary)
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        } else if filteredItems.isEmpty {
+                            ContentUnavailableView(
+                                "No Matching Services",
+                                systemImage: "magnifyingglass",
+                                description: Text("Refresh the catalog or try another search.")
+                            )
+                        } else {
+                            List(filteredItems, selection: $selectedItemID) { item in
+                                CatalogRow(item: item)
+                                    .tag(item.id)
+                            }
+                            .listStyle(.sidebar)
+                            .contentMargins(.vertical, 8, for: .scrollContent)
                         }
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    } else if filteredItems.isEmpty {
-                        ContentUnavailableView(
-                            "No Matching Services",
-                            systemImage: "magnifyingglass",
-                            description: Text("Refresh the catalog or try another search.")
-                        )
-                    } else {
-                        List(filteredItems, selection: $selectedItemID) { item in
-                            CatalogRow(item: item)
-                                .tag(item.id)
-                        }
-                        .listStyle(.sidebar)
-                        .contentMargins(.vertical, 8, for: .scrollContent)
                     }
                 }
+                .frame(minWidth: 320, idealWidth: 340, maxWidth: 420)
+                .navigationSplitViewColumnWidth(min: 320, ideal: 340, max: 420)
+            } detail: {
+                if let item = selectedItem {
+                    serviceDetails(item)
+                } else {
+                    ContentUnavailableView(
+                        "Choose a Service",
+                        systemImage: "plus.circle",
+                        description: Text("Select a version or detected integration from the catalog.")
+                    )
+                }
             }
-            .frame(minWidth: 320, idealWidth: 340, maxWidth: 420)
-            .navigationSplitViewColumnWidth(min: 320, ideal: 340, max: 420)
-        } detail: {
-            if let item = selectedItem {
-                serviceDetails(item)
-            } else {
-                ContentUnavailableView(
-                    "Choose a Service",
-                    systemImage: "plus.circle",
-                    description: Text("Select a version or detected integration from the catalog.")
-                )
-            }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
+
+            // Keep the footer in normal layout flow so the sidebar's scrollable
+            // viewport ends above it instead of continuing underneath it.
             footer
         }
         .frame(width: 1_080, height: 560)
