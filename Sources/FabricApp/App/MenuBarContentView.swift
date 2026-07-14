@@ -6,8 +6,8 @@ struct MenuBarContentView: View {
     @Environment(\.openWindow) private var openWindow
     @EnvironmentObject private var model: AppModel
 
-    private var runningServices: [ManagedService] {
-        model.sortedServices.filter { $0.runtime.status == .running }
+    private var serviceListHeight: CGFloat {
+        min(CGFloat(model.sortedServices.count) * 62, 320)
     }
 
     var body: some View {
@@ -18,7 +18,7 @@ struct MenuBarContentView: View {
             Divider()
             footer
         }
-        .frame(width: 380)
+        .frame(width: 500)
     }
 
     private var header: some View {
@@ -48,25 +48,15 @@ struct MenuBarContentView: View {
     @ViewBuilder
     private var serviceContent: some View {
         if model.services.isEmpty {
-            menuEmptyState(
-                symbol: "server.rack",
-                title: "No services added",
-                message: "Open Fabric to add a Homebrew service."
-            )
-        } else if runningServices.isEmpty {
-            menuEmptyState(
-                symbol: "pause.circle",
-                title: "No services running",
-                message: "Open Fabric to start a service or inspect warnings."
-            )
+            menuEmptyState
         } else {
             VStack(alignment: .leading, spacing: 0) {
                 HStack {
-                    Text("Running services")
+                    Text("Services")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(runningServices.count.formatted())
+                    Text(model.services.count.formatted())
                         .font(.caption.monospacedDigit())
                         .foregroundStyle(.tertiary)
                 }
@@ -76,42 +66,30 @@ struct MenuBarContentView: View {
 
                 ScrollView {
                     LazyVStack(spacing: 2) {
-                        ForEach(runningServices.prefix(8)) { service in
+                        ForEach(model.sortedServices) { service in
                             MenuBarServiceRow(service: service)
-                        }
-
-                        if runningServices.count > 8 {
-                            Text("\(runningServices.count - 8) more running in Fabric")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.horizontal, 10)
-                                .padding(.vertical, 6)
                         }
                     }
                     .padding(.horizontal, 6)
                     .padding(.bottom, 8)
                 }
-                .frame(maxHeight: 320)
+                // MenuBarExtra does not infer a ScrollView's intrinsic height. An
+                // explicit viewport prevents a non-empty service list collapsing.
+                .frame(height: serviceListHeight)
             }
         }
     }
 
-    private func menuEmptyState(
-        symbol: String,
-        title: String,
-        message: String
-    ) -> some View {
+    private var menuEmptyState: some View {
         VStack(spacing: 8) {
-            Image(systemName: symbol)
+            Image(systemName: "server.rack")
                 .font(.title2)
                 .foregroundStyle(.secondary)
-            Text(title)
+            Text("No services added")
                 .font(.subheadline.weight(.medium))
-            Text(message)
+            Text("Open Fabric to add a Homebrew service.")
                 .font(.caption)
                 .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)
@@ -145,6 +123,18 @@ private struct MenuBarServiceRow: View {
     @EnvironmentObject private var model: AppModel
     let service: ManagedService
 
+    private var isBusy: Bool {
+        model.busyServiceIDs.contains(service.id)
+    }
+
+    private var statusColor: Color {
+        switch service.runtime.status {
+        case .running: .green
+        case .warning: .orange
+        case .offline: .secondary
+        }
+    }
+
     var body: some View {
         HStack(spacing: 10) {
             Image(systemName: service.instance.kind.symbolName)
@@ -160,30 +150,52 @@ private struct MenuBarServiceRow: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(1)
             }
-
-            Spacer(minLength: 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
 
             HStack(spacing: 5) {
                 Circle()
-                    .fill(.green)
+                    .fill(statusColor)
                     .frame(width: 7, height: 7)
                 Text(service.runtime.status.displayName)
             }
             .font(.caption.weight(.medium))
-            .foregroundStyle(.green)
+            .foregroundStyle(statusColor)
             .frame(width: 70, alignment: .leading)
 
-            Button {
-                model.perform(.stop, on: service)
-            } label: {
-                Image(systemName: "stop.fill")
-                    .frame(width: 18, height: 18)
+            if isBusy {
+                ProgressView()
+                    .controlSize(.small)
+                    .frame(width: 102)
+            } else {
+                HStack(spacing: 4) {
+                    actionButton(.start, symbol: "play.fill")
+                    actionButton(.stop, symbol: "stop.fill")
+                    actionButton(.restart, symbol: "arrow.clockwise")
+                }
+                .frame(width: 102, alignment: .trailing)
             }
-            .buttonStyle(.borderless)
-            .disabled(model.busyServiceIDs.contains(service.id))
-            .help("Stop \(service.instance.name)")
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 7)
+    }
+
+    private func actionButton(_ action: ServiceAction, symbol: String) -> some View {
+        Button {
+            model.perform(action, on: service)
+        } label: {
+            Image(systemName: symbol)
+                .frame(width: 16, height: 16)
+        }
+        .buttonStyle(.borderless)
+        .disabled(isRedundant(action))
+        .help("\(action.displayName) \(service.instance.name)")
+    }
+
+    private func isRedundant(_ action: ServiceAction) -> Bool {
+        switch action {
+        case .start: service.runtime.status == .running
+        case .stop: service.runtime.status == .offline
+        case .restart: service.runtime.status == .offline
+        }
     }
 }
