@@ -4,6 +4,10 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Changed
+
+- Move the Start at login checkbox into the main toolbar beside Refresh and Add Service.
+
 ## [0.1.2] - 2026-07-14
 
 ### Added
