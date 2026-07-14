@@ -47,7 +47,8 @@ struct AddServiceView: View {
                 }
             }
             .navigationTitle("Add Service")
-            .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 360)
+            .frame(minWidth: 320, idealWidth: 340, maxWidth: 420)
+            .navigationSplitViewColumnWidth(min: 320, ideal: 340, max: 420)
             .searchable(text: $searchText, prompt: "Search services")
         } detail: {
             if let item = selectedItem {
@@ -63,7 +64,7 @@ struct AddServiceView: View {
         .safeAreaInset(edge: .bottom, spacing: 0) {
             footer
         }
-        .frame(width: 960, height: 560)
+        .frame(width: 1_080, height: 560)
         .onChange(of: selectedItemID) { _, _ in
             if let item = selectedItem {
                 serviceName = item.displayName
@@ -188,6 +189,8 @@ private struct CatalogRow: View {
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(item.displayName)
+                    .lineLimit(1)
+                    .layoutPriority(1)
                 Text(item.versionLabel)
                     .font(.caption)
                     .foregroundStyle(.secondary)
