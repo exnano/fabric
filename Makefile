@@ -1,4 +1,4 @@
-.PHONY: build test app run distribute clean
+.PHONY: build test app run distribute security-audit clean
 
 build:
 	swift build
@@ -14,6 +14,9 @@ run:
 
 distribute:
 	./scripts/distribute-app.sh
+
+security-audit:
+	./scripts/security-audit.sh
 
 clean:
 	swift package clean

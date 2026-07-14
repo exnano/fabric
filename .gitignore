@@ -18,3 +18,13 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Credentials, signing keys, and provisioning material
+*.key
+*.pem
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile
+*.secrets
+secrets/
