@@ -34,7 +34,7 @@ struct ServiceListView: View {
             DockPresenceController.managementWindowDidClose()
         }
         .toolbar {
-            ToolbarItem(placement: .navigation) {
+            ToolbarItem(placement: .primaryAction) {
                 loginItemControl
             }
 
@@ -111,22 +111,18 @@ struct ServiceListView: View {
     }
 
     private var loginItemControl: some View {
-        HStack(spacing: 7) {
-            Button {
-                loginItem.setEnabled(!loginItem.isEnabled)
-            } label: {
-                HStack(spacing: 7) {
-                    Image(systemName: loginItem.isEnabled ? "checkmark.square.fill" : "square")
-                        .foregroundStyle(loginItem.isEnabled ? Color.accentColor : .secondary)
-                    Text("Start at login")
-                        .font(.callout)
-                }
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
+        HStack(spacing: 6) {
+            Toggle(
+                "Open at Login",
+                isOn: Binding(
+                    get: { loginItem.isEnabled },
+                    set: { loginItem.setEnabled($0) }
+                )
+            )
+            .toggleStyle(.checkbox)
+            .controlSize(.small)
             .disabled(loginItem.isUpdating)
-            .help("Launch Fabric automatically after you sign in to macOS")
-            .accessibilityLabel("Start Fabric at login")
+            .help("Open Fabric automatically after you sign in to macOS")
             .accessibilityValue(loginItem.isEnabled ? "Enabled" : "Disabled")
 
             if loginItem.isUpdating {
@@ -142,7 +138,6 @@ struct ServiceListView: View {
                     .help(errorMessage)
             }
         }
-        .padding(.horizontal, 2)
     }
 }
 
