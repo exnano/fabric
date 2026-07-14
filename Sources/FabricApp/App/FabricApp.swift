@@ -25,9 +25,9 @@ struct FabricApp: App {
         Window("Exnano Fabric", id: "management") {
             ServiceListView()
                 .environmentObject(model)
-                .frame(minWidth: 840, minHeight: 560)
+                .frame(minWidth: 820, minHeight: 560)
         }
-        .defaultSize(width: 1_040, height: 680)
+        .defaultSize(width: 940, height: 640)
         .defaultLaunchBehavior(.presented)
         .restorationBehavior(.disabled)
     }
