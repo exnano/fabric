@@ -34,7 +34,7 @@ struct ServiceListView: View {
             DockPresenceController.managementWindowDidClose()
         }
         .toolbar {
-            ToolbarItem(placement: .automatic) {
+            ToolbarItem(placement: .navigation) {
                 loginItemControl
             }
 
@@ -111,20 +111,28 @@ struct ServiceListView: View {
     }
 
     private var loginItemControl: some View {
-        HStack(spacing: 6) {
-            Toggle(
-                "Start at login",
-                isOn: Binding(
-                    get: { loginItem.isEnabled },
-                    set: { loginItem.setEnabled($0) }
-                )
-            )
-            .toggleStyle(.checkbox)
+        HStack(spacing: 7) {
+            Button {
+                loginItem.setEnabled(!loginItem.isEnabled)
+            } label: {
+                HStack(spacing: 7) {
+                    Image(systemName: loginItem.isEnabled ? "checkmark.square.fill" : "square")
+                        .foregroundStyle(loginItem.isEnabled ? Color.accentColor : .secondary)
+                    Text("Start at login")
+                        .font(.callout)
+                }
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
             .disabled(loginItem.isUpdating)
-            .fixedSize()
             .help("Launch Fabric automatically after you sign in to macOS")
+            .accessibilityLabel("Start Fabric at login")
+            .accessibilityValue(loginItem.isEnabled ? "Enabled" : "Disabled")
 
-            if loginItem.requiresApproval {
+            if loginItem.isUpdating {
+                ProgressView()
+                    .controlSize(.small)
+            } else if loginItem.requiresApproval {
                 Image(systemName: "exclamationmark.triangle.fill")
                     .foregroundStyle(.orange)
                     .help("Approval required in System Settings > General > Login Items")
@@ -134,6 +142,7 @@ struct ServiceListView: View {
                     .help(errorMessage)
             }
         }
+        .padding(.horizontal, 2)
     }
 }
 
