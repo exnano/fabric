@@ -10,6 +10,7 @@
 - Shows a Dock icon while the management window is open, then returns to menu-bar-only mode when it closes.
 - Keeps a menu-bar control available and stays running when the management window closes.
 - Uses Command-Q to close the management window without terminating Fabric.
+- Provides a Start at login checkbox backed by macOS Login Items; unchecking removes the registration.
 - Lists all configured services, endpoints, statuses, and Start/Stop/Restart actions in the menu-bar dropdown.
 - Discovers supported versioned formulae from the user's actual Homebrew catalog.
 - Installs a selected formula without automatically running `brew update`.
@@ -71,7 +72,7 @@ For a one-command debug build and launch:
 make run
 ```
 
-The local bundle is ad-hoc signed. Developer ID signing, hardened runtime, and notarization are planned before distribution.
+`make app` creates an ad-hoc signed development bundle. `make distribute` creates a hardened Developer ID build, submits it for Apple notarization, staples the ticket, and installs it in `~/Applications`; see [`docs/RELEASING.md`](docs/RELEASING.md) for credential setup.
 
 ## Versioning
 

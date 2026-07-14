@@ -4,6 +4,11 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Added
+
+- Add a native Start at login checkbox backed by macOS `SMAppService` registration.
+- Add a Developer ID signing, Apple notarization, stapling, Gatekeeper validation, and `~/Applications` installation pipeline.
+
 ### Fixed
 
 - Dismiss the menu-bar panel and focus the management window after choosing Open Fabric.
