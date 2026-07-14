@@ -21,26 +21,8 @@ fi
 /bin/rm -rf "$ICONSET_DIR"
 /bin/mkdir -p "$ICONSET_DIR"
 
-function render_icon() {
-    local background="$1"
-    local destination="$2"
-
-    # Clip the supplied transparent artwork to a macOS-style rounded backplate.
-    # The large radius and inset keep corners clear at every generated icon size.
-    magick \
-        -size 1024x1024 xc:none \
-        -fill "$background" \
-        -draw "roundrectangle 48,48 976,976 210,210" \
-        "$SOURCE" -compose over -composite \
-        \( -size 1024x1024 xc:black -fill white \
-           -draw "roundrectangle 48,48 976,976 210,210" \) \
-        -alpha off -compose copy_opacity -composite \
-        -strip -depth 8 \
-        "$destination"
-}
-
-render_icon "#F1F4FC" "$LIGHT_ICON"
-render_icon "#11131B" "$DARK_ICON"
+/bin/cp "$SOURCE" "$LIGHT_ICON"
+/bin/cp "$SOURCE" "$DARK_ICON"
 
 for specification in \
     "16 icon_16x16.png" \
