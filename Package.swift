@@ -9,11 +9,17 @@ let package = Package(
     ],
     products: [
         .library(name: "FabricCore", targets: ["FabricCore"]),
+        .executable(name: "Fabric", targets: ["Fabric"]),
     ],
     targets: [
         .target(
             name: "FabricCore",
             path: "Sources/FabricCore"
+        ),
+        .executableTarget(
+            name: "Fabric",
+            dependencies: ["FabricCore"],
+            path: "Sources/FabricApp"
         ),
     ]
 )
