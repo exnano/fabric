@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ServiceListView: View {
     @EnvironmentObject private var model: AppModel
+    @StateObject private var loginItem = LoginItemController()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,6 +28,7 @@ struct ServiceListView: View {
         }
         .onAppear {
             DockPresenceController.managementWindowDidOpen()
+            loginItem.refreshStatus()
         }
         .onDisappear {
             DockPresenceController.managementWindowDidClose()
@@ -94,12 +96,42 @@ struct ServiceListView: View {
 
             Spacer()
 
+            loginItemControl
+
             MetricView(value: model.services.count, label: "Added")
             MetricView(value: model.runningCount, label: "Running", color: .green)
         }
         .padding(.horizontal, 24)
         .padding(.vertical, 22)
         .background(.bar)
+    }
+
+    private var loginItemControl: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            Toggle(
+                "Start at login",
+                isOn: Binding(
+                    get: { loginItem.isEnabled },
+                    set: { loginItem.setEnabled($0) }
+                )
+            )
+            .toggleStyle(.checkbox)
+            .disabled(loginItem.isUpdating)
+            .help("Launch Fabric automatically after you sign in to macOS")
+
+            if loginItem.requiresApproval {
+                Text("Approval required in System Settings")
+                    .font(.caption2)
+                    .foregroundStyle(.orange)
+            } else if let errorMessage = loginItem.errorMessage {
+                Text(errorMessage)
+                    .font(.caption2)
+                    .foregroundStyle(.red)
+                    .lineLimit(2)
+                    .frame(maxWidth: 180, alignment: .leading)
+            }
+        }
+        .frame(minWidth: 120, alignment: .leading)
     }
 }
 
