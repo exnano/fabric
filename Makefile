@@ -1,4 +1,4 @@
-.PHONY: build test app run clean
+.PHONY: build test app run distribute clean
 
 build:
 	swift build
@@ -11,6 +11,9 @@ app:
 
 run:
 	./scripts/run-app.sh
+
+distribute:
+	./scripts/distribute-app.sh
 
 clean:
 	swift package clean
