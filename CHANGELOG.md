@@ -8,6 +8,7 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 - Add a native Start at login checkbox backed by macOS `SMAppService` registration.
 - Add a Developer ID signing, Apple notarization, stapling, Gatekeeper validation, and `~/Applications` installation pipeline.
+- Add a branded macOS application icon with light and dark appearance variants.
 
 ### Fixed
 

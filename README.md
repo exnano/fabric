@@ -7,7 +7,7 @@
 ## Current capabilities
 
 - Opens its native service-management window automatically at launch.
-- Shows a Dock icon while the management window is open, then returns to menu-bar-only mode when it closes.
+- Shows a branded Dock icon while the management window is open, with light and dark variants that follow macOS appearance.
 - Keeps a menu-bar control available and stays running when the management window closes.
 - Uses Command-Q to close the management window without terminating Fabric.
 - Provides a Start at login checkbox backed by macOS Login Items; unchecking removes the registration.
