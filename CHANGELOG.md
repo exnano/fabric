@@ -6,7 +6,7 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ### Added
 
-- List currently running services, endpoints, statuses, and Stop actions in the menu-bar dropdown.
+- List all configured services, endpoints, statuses, and Start/Stop/Restart actions in the menu-bar dropdown.
 
 ### Changed
 
