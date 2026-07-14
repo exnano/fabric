@@ -49,15 +49,6 @@ struct AddServiceView: View {
             .navigationTitle("Add Service")
             .navigationSplitViewColumnWidth(min: 260, ideal: 300, max: 360)
             .searchable(text: $searchText, prompt: "Search services")
-            .toolbar {
-                Button {
-                    Task { await model.loadCatalog() }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-                .disabled(model.isLoadingCatalog)
-                .help("Refresh Homebrew catalog")
-            }
         } detail: {
             if let item = selectedItem {
                 serviceDetails(item)
@@ -69,11 +60,53 @@ struct AddServiceView: View {
                 )
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            footer
+        }
         .frame(width: 960, height: 560)
         .onChange(of: selectedItemID) { _, _ in
             if let item = selectedItem {
                 serviceName = item.displayName
             }
+        }
+    }
+
+    private var footer: some View {
+        HStack(spacing: 12) {
+            Button {
+                Task { await model.loadCatalog() }
+            } label: {
+                Label("Refresh", systemImage: "arrow.clockwise")
+            }
+            .disabled(model.isLoadingCatalog || model.isAddingService)
+
+            Button("Cancel", role: .cancel) {
+                dismiss()
+            }
+            .disabled(model.isAddingService)
+            .keyboardShortcut(.cancelAction)
+
+            Spacer()
+
+            if let item = selectedItem {
+                Button(item.isInstalled ? "Add Service" : "Install & Add") {
+                    Task {
+                        await model.addService(item: item, name: serviceName)
+                    }
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(
+                    serviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+                        || model.isAddingService
+                )
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(.bar)
+        .overlay(alignment: .top) {
+            Divider()
         }
     }
 
@@ -124,23 +157,6 @@ struct AddServiceView: View {
             .background(.quaternary, in: RoundedRectangle(cornerRadius: 10))
 
             Spacer()
-
-            HStack {
-                Button("Cancel", role: .cancel) {
-                    dismiss()
-                }
-                Spacer()
-                Button(item.isInstalled ? "Add Service" : "Install & Add") {
-                    Task {
-                        await model.addService(item: item, name: serviceName)
-                    }
-                }
-                .buttonStyle(.borderedProminent)
-                .disabled(
-                    serviceName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-                        || model.isAddingService
-                )
-            }
         }
         .padding(24)
         .overlay {
