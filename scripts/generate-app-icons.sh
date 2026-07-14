@@ -35,6 +35,7 @@ function render_icon() {
         \( -size 1024x1024 xc:black -fill white \
            -draw "roundrectangle 48,48 976,976 210,210" \) \
         -alpha off -compose copy_opacity -composite \
+        -strip -depth 8 \
         "$destination"
 }
 

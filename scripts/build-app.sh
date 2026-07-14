@@ -20,6 +20,17 @@ BIN_DIR="$(/usr/bin/swift build --configuration "$CONFIGURATION" --show-bin-path
 /bin/mkdir -p "$MACOS_DIR" "$RESOURCES_DIR"
 /bin/cp "$BIN_DIR/Fabric" "$MACOS_DIR/Fabric"
 /bin/chmod 755 "$MACOS_DIR/Fabric"
+
+# SwiftPM can embed a build-machine Xcode toolchain rpath. System Swift libraries
+# are sufficient for the deployment target, so remove local developer search paths.
+while IFS= read -r rpath; do
+    case "$rpath" in
+        /Applications/Xcode.app/*|/Library/Developer/*)
+            /usr/bin/install_name_tool -delete_rpath "$rpath" "$MACOS_DIR/Fabric"
+            ;;
+    esac
+done < <(/usr/bin/otool -l "$MACOS_DIR/Fabric" | /usr/bin/awk \
+    '/cmd LC_RPATH/ { getline; getline; print $2 }')
 /bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon.icns" "$RESOURCES_DIR/FabricIcon.icns"
 /bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon-Light.png" "$RESOURCES_DIR/FabricIcon-Light.png"
 /bin/cp "$ROOT_DIR/Assets/AppIcon/Generated/FabricIcon-Dark.png" "$RESOURCES_DIR/FabricIcon-Dark.png"

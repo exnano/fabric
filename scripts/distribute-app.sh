@@ -23,6 +23,9 @@ TEMP_DIR="$(/usr/bin/mktemp -d -t exnano-fabric-release)"
 ARCHIVE_PATH="$TEMP_DIR/Exnano-Fabric.zip"
 trap '/bin/rm -rf "$TEMP_DIR"' EXIT
 
+# A clean release prevents renamed workspace paths and stale module caches from
+# leaking into compiler artifacts.
+/usr/bin/swift package --package-path "$ROOT_DIR" clean
 "$ROOT_DIR/scripts/build-app.sh" release
 
 # The development builder applies an ad-hoc signature. Replace it with a timestamped
