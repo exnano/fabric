@@ -21,5 +21,10 @@ let package = Package(
             dependencies: ["FabricCore"],
             path: "Sources/FabricApp"
         ),
+        .testTarget(
+            name: "FabricCoreTests",
+            dependencies: ["FabricCore"],
+            path: "Tests/FabricCoreTests"
+        ),
     ]
 )
