@@ -4,6 +4,8 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-07-14
+
 ### Added
 
 - List all configured services, endpoints, statuses, and Start/Stop/Restart actions in the menu-bar dropdown.
