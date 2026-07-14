@@ -4,6 +4,10 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Fixed
+
+- Dismiss the menu-bar panel and focus the management window after choosing Open Fabric.
+
 ## [0.1.1] - 2026-07-14
 
 ### Added
