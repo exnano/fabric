@@ -4,6 +4,10 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Added
+
+- List currently running services, endpoints, statuses, and Stop actions in the menu-bar dropdown.
+
 ### Changed
 
 - Redesign the dashboard with aligned service, status, lifecycle-action, and log columns.
