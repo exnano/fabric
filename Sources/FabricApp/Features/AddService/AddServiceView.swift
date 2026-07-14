@@ -24,32 +24,40 @@ struct AddServiceView: View {
 
     var body: some View {
         NavigationSplitView {
-            Group {
-                if model.isLoadingCatalog, model.catalogItems.isEmpty {
-                    VStack(spacing: 12) {
-                        ProgressView()
-                        Text("Reading Homebrew catalog…")
-                            .foregroundStyle(.secondary)
+            VStack(spacing: 0) {
+                CatalogSearchField(text: $searchText)
+                    .padding(.horizontal, 14)
+                    .padding(.top, 14)
+                    .padding(.bottom, 12)
+
+                Divider()
+
+                Group {
+                    if model.isLoadingCatalog, model.catalogItems.isEmpty {
+                        VStack(spacing: 12) {
+                            ProgressView()
+                            Text("Reading Homebrew catalog…")
+                                .foregroundStyle(.secondary)
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else if filteredItems.isEmpty {
+                        ContentUnavailableView(
+                            "No Matching Services",
+                            systemImage: "magnifyingglass",
+                            description: Text("Refresh the catalog or try another search.")
+                        )
+                    } else {
+                        List(filteredItems, selection: $selectedItemID) { item in
+                            CatalogRow(item: item)
+                                .tag(item.id)
+                        }
+                        .listStyle(.sidebar)
+                        .contentMargins(.vertical, 8, for: .scrollContent)
                     }
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                } else if filteredItems.isEmpty {
-                    ContentUnavailableView(
-                        "No Matching Services",
-                        systemImage: "magnifyingglass",
-                        description: Text("Refresh the catalog or try another search.")
-                    )
-                } else {
-                    List(filteredItems, selection: $selectedItemID) { item in
-                        CatalogRow(item: item)
-                            .tag(item.id)
-                    }
-                    .listStyle(.sidebar)
                 }
             }
-            .navigationTitle("Add Service")
             .frame(minWidth: 320, idealWidth: 340, maxWidth: 420)
             .navigationSplitViewColumnWidth(min: 320, ideal: 340, max: 420)
-            .searchable(text: $searchText, placement: .sidebar, prompt: "Search services")
         } detail: {
             if let item = selectedItem {
                 serviceDetails(item)
@@ -175,6 +183,44 @@ struct AddServiceView: View {
                 }
             }
         }
+    }
+}
+
+private struct CatalogSearchField: View {
+    @Binding var text: String
+    @FocusState private var isFocused: Bool
+
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass")
+                .foregroundStyle(.secondary)
+
+            TextField("Search services", text: $text)
+                .textFieldStyle(.plain)
+                .focused($isFocused)
+
+            if !text.isEmpty {
+                Button {
+                    text = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+                .help("Clear search")
+            }
+        }
+        .padding(.horizontal, 10)
+        .frame(height: 34)
+        .background(.background.opacity(0.72), in: RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(
+                    isFocused ? Color.accentColor : Color.secondary.opacity(0.22),
+                    lineWidth: isFocused ? 2 : 1
+                )
+        }
+        .animation(.easeOut(duration: 0.16), value: isFocused)
     }
 }
 
