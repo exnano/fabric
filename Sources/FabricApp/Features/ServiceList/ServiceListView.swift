@@ -29,6 +29,12 @@ struct ServiceListView: View {
                 .listStyle(.inset)
             }
         }
+        .onAppear {
+            DockPresenceController.managementWindowDidOpen()
+        }
+        .onDisappear {
+            DockPresenceController.managementWindowDidClose()
+        }
         .toolbar {
             ToolbarItemGroup(placement: .primaryAction) {
                 sortControls
