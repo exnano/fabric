@@ -22,11 +22,7 @@ struct ServiceListView: View {
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(model.sortedServices) { service in
-                    ServiceRowView(service: service)
-                        .listRowInsets(EdgeInsets(top: 10, leading: 14, bottom: 10, trailing: 14))
-                }
-                .listStyle(.inset)
+                serviceList
             }
         }
         .onAppear {
@@ -40,9 +36,10 @@ struct ServiceListView: View {
                 Button {
                     Task { await model.refresh() }
                 } label: {
-                    Label("Refresh", systemImage: "arrow.clockwise")
+                    Label("Refresh Service Status", systemImage: "arrow.clockwise")
                 }
                 .disabled(model.isRefreshing)
+                .help("Refresh service status now. Fabric also refreshes automatically every eight seconds.")
 
                 Button {
                     model.presentAddService()
@@ -68,11 +65,28 @@ struct ServiceListView: View {
         }
     }
 
+    private var serviceList: some View {
+        ScrollView {
+            LazyVStack(spacing: 0) {
+                ForEach(Array(model.sortedServices.enumerated()), id: \.element.id) { index, service in
+                    ServiceRowView(service: service)
+
+                    if index < model.sortedServices.count - 1 {
+                        Divider()
+                            .padding(.leading, 76)
+                    }
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 8)
+        }
+    }
+
     private var dashboardHeader: some View {
-        HStack(alignment: .center, spacing: 18) {
-            VStack(alignment: .leading, spacing: 4) {
+        HStack(alignment: .center, spacing: 24) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text("Services")
-                    .font(.system(size: 28, weight: .semibold, design: .rounded))
+                    .font(.system(size: 30, weight: .semibold, design: .rounded))
                 Text("Homebrew packages stay pinned while Fabric manages their service lifecycle.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
@@ -83,11 +97,10 @@ struct ServiceListView: View {
             MetricView(value: model.services.count, label: "Added")
             MetricView(value: model.runningCount, label: "Running", color: .green)
         }
-        .padding(.horizontal, 22)
-        .padding(.vertical, 18)
+        .padding(.horizontal, 24)
+        .padding(.vertical, 22)
         .background(.bar)
     }
-
 }
 
 private struct MetricView: View {
@@ -96,14 +109,15 @@ private struct MetricView: View {
     var color: Color = .primary
 
     var body: some View {
-        VStack(alignment: .trailing, spacing: 1) {
+        VStack(alignment: .trailing, spacing: 2) {
             Text(value.formatted())
-                .font(.title2.weight(.semibold))
+                .font(.system(size: 32, weight: .semibold, design: .rounded))
+                .monospacedDigit()
                 .foregroundStyle(color)
             Text(label)
-                .font(.caption)
+                .font(.caption.weight(.medium))
                 .foregroundStyle(.secondary)
         }
-        .frame(minWidth: 56, alignment: .trailing)
+        .frame(minWidth: 76, alignment: .trailing)
     }
 }

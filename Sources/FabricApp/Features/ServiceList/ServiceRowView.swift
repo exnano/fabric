@@ -10,64 +10,78 @@ struct ServiceRowView: View {
     }
 
     var body: some View {
-        HStack(spacing: 14) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(.quaternary)
-                Image(systemName: service.instance.kind.symbolName)
-                    .font(.system(size: 19, weight: .medium))
-                    .foregroundStyle(.secondary)
-            }
-            .frame(width: 42, height: 42)
+        HStack(spacing: 16) {
+            serviceIcon
+            serviceIdentity
 
-            VStack(alignment: .leading, spacing: 4) {
-                HStack(spacing: 8) {
-                    Text(service.instance.name)
-                        .font(.headline)
-                    StatusBadge(status: service.runtime.status)
-                }
+            StatusBadge(status: service.runtime.status)
+                .frame(width: 104, alignment: .leading)
 
-                HStack(spacing: 6) {
-                    Text(service.instance.kind.displayName)
-                    Text("·")
-                    Text(service.instance.source.subtitle)
-                    Text("·")
-                    Text(service.instance.versionLabel)
-                }
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-
-                if !service.instance.endpoints.isEmpty {
-                    Text(service.instance.endpoints.map(\.address).joined(separator: "  ·  "))
-                        .font(.caption.monospacedDigit())
-                        .foregroundStyle(.secondary)
-                }
-            }
-
-            Spacer(minLength: 12)
-
-            if isBusy {
-                ProgressView()
-                    .controlSize(.small)
-                    .frame(width: 22)
-            }
+            actionControls
+                .frame(width: 132, alignment: .trailing)
 
             Button {
                 model.showLogs(for: service)
             } label: {
                 Label("Logs", systemImage: "doc.text.magnifyingglass")
+                    .frame(minWidth: 64)
             }
             .help("Open service logs")
+        }
+        .frame(minHeight: 86)
+        .contentShape(Rectangle())
+        .help(service.runtime.summary)
+    }
 
+    private var serviceIcon: some View {
+        ZStack {
+            RoundedRectangle(cornerRadius: 11, style: .continuous)
+                .fill(.quaternary)
+            Image(systemName: service.instance.kind.symbolName)
+                .font(.system(size: 20, weight: .medium))
+                .foregroundStyle(.secondary)
+        }
+        .frame(width: 52, height: 52)
+    }
+
+    private var serviceIdentity: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(service.instance.name)
+                .font(.headline)
+
+            Text(
+                [
+                    service.instance.kind.displayName,
+                    service.instance.source.subtitle,
+                    service.instance.versionLabel,
+                ].joined(separator: "  ·  ")
+            )
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+
+            if !service.instance.endpoints.isEmpty {
+                Text(service.instance.endpoints.map(\.address).joined(separator: "  ·  "))
+                    .font(.caption.monospacedDigit())
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    @ViewBuilder
+    private var actionControls: some View {
+        if isBusy {
+            ProgressView()
+                .controlSize(.small)
+                .frame(width: 132, alignment: .center)
+        } else {
             HStack(spacing: 6) {
                 actionButton(.start, symbol: "play.fill")
                 actionButton(.stop, symbol: "stop.fill")
                 actionButton(.restart, symbol: "arrow.clockwise")
             }
         }
-        .padding(.vertical, 2)
-        .help(service.runtime.summary)
     }
 
     private func actionButton(_ action: ServiceAction, symbol: String) -> some View {
@@ -77,7 +91,7 @@ struct ServiceRowView: View {
             Image(systemName: symbol)
                 .frame(width: 17, height: 17)
         }
-        .disabled(isBusy || isRedundant(action))
+        .disabled(isRedundant(action))
         .help(action.displayName)
     }
 
@@ -102,16 +116,16 @@ private struct StatusBadge: View {
     }
 
     var body: some View {
-        HStack(spacing: 5) {
+        HStack(spacing: 6) {
             Circle()
                 .fill(color)
-                .frame(width: 6, height: 6)
+                .frame(width: 7, height: 7)
             Text(status.displayName)
         }
-        .font(.caption.weight(.medium))
+        .font(.caption.weight(.semibold))
         .foregroundStyle(color)
-        .padding(.horizontal, 8)
-        .padding(.vertical, 3)
+        .padding(.horizontal, 9)
+        .padding(.vertical, 5)
         .background(color.opacity(0.12), in: Capsule())
     }
 }
