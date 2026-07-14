@@ -7,6 +7,7 @@
 ## Current capabilities
 
 - Opens its native service-management window automatically at launch.
+- Shows a Dock icon while the management window is open, then returns to menu-bar-only mode when it closes.
 - Keeps a menu-bar control available and stays running when the management window closes.
 - Discovers supported versioned formulae from the user's actual Homebrew catalog.
 - Installs a selected formula without automatically running `brew update`.

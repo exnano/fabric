@@ -7,6 +7,7 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 ### Fixed
 
 - Present and activate the full management window automatically when Fabric launches.
+- Show Fabric in the Dock while its management window is open and hide it after the window closes.
 
 ## [0.1.0] - 2026-07-14
 
