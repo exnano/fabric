@@ -3,6 +3,7 @@ import FabricCore
 import SwiftUI
 
 struct MenuBarContentView: View {
+    @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
     @EnvironmentObject private var model: AppModel
 
@@ -113,8 +114,15 @@ struct MenuBarContentView: View {
     }
 
     private func openManagementWindow() {
+        // Close the transient menu-bar panel before transferring focus to the main
+        // window. The short yield lets SwiftUI create a previously closed window.
+        dismiss()
         openWindow(id: "management")
-        NSApplication.shared.activate(ignoringOtherApps: true)
+
+        Task { @MainActor in
+            try? await Task.sleep(for: .milliseconds(50))
+            DockPresenceController.focusManagementWindow()
+        }
     }
 }
 
