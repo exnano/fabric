@@ -45,19 +45,15 @@ struct ServiceRowView: View {
     }
 
     private var serviceIdentity: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(service.instance.name)
-                .font(.headline)
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Text(service.instance.name)
+                    .font(.headline)
 
-            Text(
-                [
-                    service.instance.kind.displayName,
-                    service.instance.source.subtitle,
-                    service.instance.versionLabel,
-                ].joined(separator: "  ·  ")
-            )
-            .font(.caption)
-            .foregroundStyle(.secondary)
+                Text(service.instance.versionLabel)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
             .lineLimit(1)
 
             if !service.instance.endpoints.isEmpty {
