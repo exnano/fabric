@@ -28,7 +28,7 @@ struct ServiceRowView: View {
             }
             .help("Open service logs")
         }
-        .frame(minHeight: 86)
+        .frame(minHeight: 72)
         .contentShape(Rectangle())
         .help(service.runtime.summary)
     }
