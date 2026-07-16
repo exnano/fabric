@@ -2,6 +2,8 @@ import AppKit
 import FabricCore
 import SwiftUI
 
+private let serviceRowHeight: CGFloat = 48
+
 struct MenuBarContentView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.openWindow) private var openWindow
@@ -9,7 +11,7 @@ struct MenuBarContentView: View {
 
     private var serviceListHeight: CGFloat {
         let visibleRows = min(model.sortedServices.count, 5)
-        return CGFloat(visibleRows) * 54
+        return CGFloat(visibleRows) * serviceRowHeight
     }
 
     var body: some View {
@@ -183,7 +185,7 @@ private struct MenuBarServiceRow: View {
             }
         }
         .padding(.horizontal, 7)
-        .frame(height: 54)
+        .frame(height: serviceRowHeight)
     }
 
     private func actionButton(_ action: ServiceAction, symbol: String) -> some View {
