@@ -15,7 +15,8 @@
 - Discovers supported versioned formulae from the user's actual Homebrew catalog.
 - Installs a selected formula without automatically running `brew update`.
 - Pins the installed formula so normal Homebrew upgrades do not move it unexpectedly.
-- Tracks whether a pin belonged to the user before Fabric touched it.
+- Lets users lock or unlock a registered formula and run an explicit, confirmed Homebrew upgrade.
+- Restores the prior pin after an upgrade and tracks whether a pin belonged to the user before Fabric touched it.
 - Lists added services with source, version, endpoints, and status.
 - Orders services consistently by localized name, then status when names match.
 - Starts, stops, and restarts services.
@@ -57,7 +58,16 @@ Fabric is intentionally not sandboxed in the current development build because i
 
 ## Build and run
 
-Open `Package.swift` in Xcode, or use the command line:
+Open `ExnanoFabric.xcodeproj` in Xcode and select the **Exnano Fabric** scheme. The management-window Canvas preview lives in `Sources/FabricApp/PreviewSupport/ServiceListPreview.swift` and uses in-memory fixtures without invoking Homebrew.
+
+Regenerate the project after changing `project.yml` or target membership:
+
+```bash
+brew install xcodegen
+./scripts/generate-xcode-project.sh
+```
+
+The SwiftPM and command-line release workflow remains available:
 
 ```bash
 swift build
