@@ -139,6 +139,22 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func performPackageAction(_ action: PackageAction, on service: ManagedService) {
+        guard !busyServiceIDs.contains(service.id) else { return }
+        busyServiceIDs.insert(service.id)
+
+        Task {
+            defer { busyServiceIDs.remove(service.id) }
+            do {
+                try await runtime.performPackageAction(action, serviceID: service.id)
+                await refresh(showSpinner: false)
+            } catch {
+                present(error, title: "Could Not \(action.displayName) \(service.instance.name)")
+                await refresh(showSpinner: false)
+            }
+        }
+    }
+
     func showLogs(for service: ManagedService) {
         Task {
             do {

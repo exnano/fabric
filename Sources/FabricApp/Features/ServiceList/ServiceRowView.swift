@@ -3,6 +3,7 @@ import SwiftUI
 
 struct ServiceRowView: View {
     @EnvironmentObject private var model: AppModel
+    @State private var isUpgradeConfirmationPresented = false
     let service: ManagedService
 
     private var isBusy: Bool {
@@ -20,6 +21,10 @@ struct ServiceRowView: View {
             actionControls
                 .frame(width: 132, alignment: .trailing)
 
+            if service.instance.packageLock != nil {
+                packageMenu
+            }
+
             Button {
                 model.showLogs(for: service)
             } label: {
@@ -31,6 +36,18 @@ struct ServiceRowView: View {
         .frame(minHeight: 72)
         .contentShape(Rectangle())
         .help(service.runtime.summary)
+        .confirmationDialog(
+            "Upgrade \(service.instance.name)?",
+            isPresented: $isUpgradeConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Upgrade \(service.instance.packageLock?.formula ?? service.instance.name)") {
+                model.performPackageAction(.upgrade, on: service)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Homebrew may restart this service. Unversioned database formulae can cross major versions; back up important data first.")
+        }
     }
 
     private var serviceIcon: some View {
@@ -78,6 +95,33 @@ struct ServiceRowView: View {
                 actionButton(.restart, symbol: "arrow.clockwise")
             }
         }
+    }
+
+    private var packageMenu: some View {
+        Menu {
+            if service.instance.packageLock?.isPinned == true {
+                Button("Unlock Version", systemImage: "lock.open") {
+                    model.performPackageAction(.unpin, on: service)
+                }
+            } else {
+                Button("Lock Version", systemImage: "lock") {
+                    model.performPackageAction(.pin, on: service)
+                }
+            }
+
+            Divider()
+
+            Button("Upgrade with Homebrew…", systemImage: "arrow.up.circle") {
+                isUpgradeConfirmationPresented = true
+            }
+        } label: {
+            Image(systemName: service.instance.packageLock?.isPinned == true ? "lock.fill" : "lock.open")
+                .frame(width: 17, height: 17)
+        }
+        .menuStyle(.borderlessButton)
+        .fixedSize()
+        .disabled(isBusy)
+        .help(service.instance.packageLock?.isPinned == true ? "Version locked" : "Version unlocked")
     }
 
     private func actionButton(_ action: ServiceAction, symbol: String) -> some View {
