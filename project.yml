@@ -1,0 +1,107 @@
+name: ExnanoFabric
+options:
+  bundleIdPrefix: com.exnano
+  deploymentTarget:
+    macOS: "15.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    DEVELOPMENT_TEAM: 6G94876K55
+    CODE_SIGN_STYLE: Automatic
+    MACOSX_DEPLOYMENT_TARGET: "15.0"
+configs:
+  Debug: debug
+  Release: release
+targets:
+  FabricCore:
+    type: framework
+    platform: macOS
+    sources:
+      - path: Sources/FabricCore
+    info:
+      path: Config/FabricCore-Info.plist
+      properties:
+        CFBundleName: FabricCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.exnano.fabric.core
+        PRODUCT_NAME: FabricCore
+        SKIP_INSTALL: YES
+        CODE_SIGNING_ALLOWED: NO
+  Exnano Fabric:
+    type: application
+    platform: macOS
+    sources:
+      - path: Sources/FabricApp
+    resources:
+      - path: Assets/AppIcon/ExnanoFabric.icon
+    dependencies:
+      - target: FabricCore
+    postBuildScripts:
+      - name: Compile Icon Composer Asset
+        script: |
+          set -euo pipefail
+          RESOURCE_DIR="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH"
+          /bin/mkdir -p "$RESOURCE_DIR"
+          /usr/bin/xcrun actool "$SRCROOT/Assets/AppIcon/ExnanoFabric.icon" \
+            --compile "$RESOURCE_DIR" \
+            --platform macosx \
+            --target-device mac \
+            --minimum-deployment-target "$MACOSX_DEPLOYMENT_TARGET" \
+            --app-icon ExnanoFabric \
+            --output-partial-info-plist "$DERIVED_FILE_DIR/IconComposer-Info.plist"
+        outputFiles:
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/Assets.car
+          - $(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/ExnanoFabric.icns
+    info:
+      path: Config/Xcode-Info.plist
+      properties:
+        CFBundleDisplayName: Exnano Fabric
+        CFBundleName: Fabric
+        CFBundleIconFile: ExnanoFabric
+        CFBundleIconName: ExnanoFabric
+        LSApplicationCategoryType: public.app-category.developer-tools
+        LSUIElement: true
+        NSHighResolutionCapable: true
+        NSHumanReadableCopyright: Copyright © 2026 Exnano. All rights reserved.
+        NSPrincipalClass: NSApplication
+        NSSupportsAutomaticTermination: false
+        NSSupportsSuddenTermination: false
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.exnano.fabric
+        PRODUCT_NAME: Exnano Fabric
+        EXECUTABLE_NAME: Fabric
+        MARKETING_VERSION: 0.1.3
+        CURRENT_PROJECT_VERSION: 4
+        ASSETCATALOG_COMPILER_APPICON_NAME: ExnanoFabric
+        ENABLE_APP_SANDBOX: NO
+        INFOPLIST_KEY_LSUIElement: YES
+  FabricCoreTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: Tests/FabricCoreTests
+    dependencies:
+      - target: FabricCore
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.exnano.fabric.core-tests
+        CODE_SIGNING_ALLOWED: NO
+schemes:
+  Exnano Fabric:
+    build:
+      targets:
+        Exnano Fabric: all
+        FabricCoreTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - FabricCoreTests
+    archive:
+      config: Release

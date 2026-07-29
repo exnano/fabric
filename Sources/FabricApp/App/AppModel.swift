@@ -36,8 +36,12 @@ final class AppModel: ObservableObject {
     private let runtime: FabricRuntime
     private var monitoringTask: Task<Void, Never>?
 
-    init(runtime: FabricRuntime = .live()) {
+    init(
+        runtime: FabricRuntime = .live(),
+        initialServices: [ManagedService] = []
+    ) {
         self.runtime = runtime
+        services = initialServices
     }
 
     /// Dashboard ordering is intentionally stable: localized service name first,
