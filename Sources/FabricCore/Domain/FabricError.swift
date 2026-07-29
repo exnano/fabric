@@ -9,6 +9,8 @@ public enum FabricError: LocalizedError, Sendable {
     case invalidServiceName
     case serviceNotFound
     case packageVersionMissing(String)
+    case invalidMeilisearchMasterKey
+    case credentialStore(Int32)
     case persistence(String)
     case logUnavailable
 
@@ -30,6 +32,10 @@ public enum FabricError: LocalizedError, Sendable {
             "This service is no longer registered in Fabric."
         case let .packageVersionMissing(formula):
             "Homebrew installed \(formula), but Fabric could not determine its installed version."
+        case .invalidMeilisearchMasterKey:
+            "The Meilisearch master key must contain at least 16 bytes."
+        case let .credentialStore(status):
+            "Fabric could not access the Meilisearch master key in Keychain (status \(status))."
         case let .persistence(message):
             "Fabric could not save its service registry: \(message)"
         case .logUnavailable:

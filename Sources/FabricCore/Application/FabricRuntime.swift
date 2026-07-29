@@ -118,11 +118,34 @@ public actor FabricRuntime {
         return instances[index]
     }
 
+    public func meilisearchMasterKey(serviceID: UUID) async throws -> String? {
+        let instance = try await serviceInstance(serviceID: serviceID)
+        return try await backend.meilisearchMasterKey(for: instance)
+    }
+
+    public func setMeilisearchMasterKey(
+        _ masterKey: String,
+        serviceID: UUID
+    ) async throws {
+        let instance = try await serviceInstance(serviceID: serviceID)
+        try await backend.setMeilisearchMasterKey(masterKey, for: instance)
+    }
+
+    public func upgradeMeilisearchDatabase(serviceID: UUID) async throws {
+        let instance = try await serviceInstance(serviceID: serviceID)
+        try await backend.upgradeMeilisearchDatabase(for: instance)
+    }
+
     public func logFiles(serviceID: UUID) async throws -> [LogFileReference] {
+        let instance = try await serviceInstance(serviceID: serviceID)
+        return try await backend.logFiles(for: instance)
+    }
+
+    private func serviceInstance(serviceID: UUID) async throws -> ServiceInstance {
         let instances = try await store.load()
         guard let instance = instances.first(where: { $0.id == serviceID }) else {
             throw FabricError.serviceNotFound
         }
-        return try await backend.logFiles(for: instance)
+        return instance
     }
 }

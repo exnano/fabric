@@ -13,5 +13,11 @@ public protocol ServiceManagingBackend: Sendable {
         _ action: PackageAction,
         for instance: ServiceInstance
     ) async throws -> PackageLock
+    func meilisearchMasterKey(for instance: ServiceInstance) async throws -> String?
+    func setMeilisearchMasterKey(
+        _ masterKey: String,
+        for instance: ServiceInstance
+    ) async throws
+    func upgradeMeilisearchDatabase(for instance: ServiceInstance) async throws
     func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference]
 }

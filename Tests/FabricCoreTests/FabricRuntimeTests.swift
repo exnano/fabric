@@ -112,6 +112,14 @@ private actor FakeServiceBackend: ServiceManagingBackend {
         )
     }
 
+    func meilisearchMasterKey(for instance: ServiceInstance) -> String? {
+        "test-master-key-1234"
+    }
+
+    func setMeilisearchMasterKey(_ masterKey: String, for instance: ServiceInstance) {}
+
+    func upgradeMeilisearchDatabase(for instance: ServiceInstance) {}
+
     func logFiles(for instance: ServiceInstance) -> [LogFileReference] {
         []
     }

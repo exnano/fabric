@@ -9,15 +9,18 @@ public actor HomebrewClient: ServiceManagingBackend {
     private let runner: any ProcessRunning
     private let locator: HomebrewLocator
     private let homeDirectory: URL
+    private let meilisearchMasterKeys: any MeilisearchMasterKeyStoring
 
     public init(
         runner: any ProcessRunning = FoundationProcessRunner(),
         locator: HomebrewLocator = HomebrewLocator(),
-        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser
+        homeDirectory: URL = FileManager.default.homeDirectoryForCurrentUser,
+        meilisearchMasterKeys: any MeilisearchMasterKeyStoring = KeychainMeilisearchMasterKeyStore()
     ) {
         self.runner = runner
         self.locator = locator
         self.homeDirectory = homeDirectory
+        self.meilisearchMasterKeys = meilisearchMasterKeys
     }
 
     public func catalog() async throws -> CatalogSnapshot {
@@ -158,11 +161,20 @@ public actor HomebrewClient: ServiceManagingBackend {
         case let .homebrew(formula):
             try validate(formula: formula)
             let brew = try locator.locate()
-            _ = try await runBrew(
-                brew,
-                arguments: ["services", action.rawValue, formula],
-                timeout: .seconds(5 * 60)
-            )
+            if instance.kind == .meilisearch, action != .stop {
+                try await runMeilisearchService(
+                    action: action,
+                    instance: instance,
+                    brew: brew,
+                    upgradeDatabase: false
+                )
+            } else {
+                _ = try await runBrew(
+                    brew,
+                    arguments: ["services", action.rawValue, formula],
+                    timeout: .seconds(5 * 60)
+                )
+            }
         case let .laravelValet(executablePath):
             let executable = URL(fileURLWithPath: executablePath)
             let result = try await runner.run(
@@ -250,12 +262,111 @@ public actor HomebrewClient: ServiceManagingBackend {
         )
     }
 
+    public func meilisearchMasterKey(for instance: ServiceInstance) async throws -> String? {
+        try requireMeilisearch(instance)
+        return try meilisearchMasterKeys.masterKey(serviceID: instance.id)
+    }
+
+    public func setMeilisearchMasterKey(
+        _ masterKey: String,
+        for instance: ServiceInstance
+    ) async throws {
+        try requireMeilisearch(instance)
+        try meilisearchMasterKeys.setMasterKey(masterKey, serviceID: instance.id)
+        let brew = try locator.locate()
+        try await runMeilisearchService(
+            action: .restart,
+            instance: instance,
+            brew: brew,
+            upgradeDatabase: false
+        )
+    }
+
+    public func upgradeMeilisearchDatabase(for instance: ServiceInstance) async throws {
+        try requireMeilisearch(instance)
+        let brew = try locator.locate()
+        try await runMeilisearchService(
+            action: .restart,
+            instance: instance,
+            brew: brew,
+            upgradeDatabase: true
+        )
+    }
+
     public func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference] {
         switch instance.source {
         case let .homebrew(formula):
             return try await homebrewLogFiles(formula: formula)
         case .laravelValet:
             return valetLogFiles()
+        }
+    }
+
+    private func requireMeilisearch(_ instance: ServiceInstance) throws {
+        guard instance.kind == .meilisearch, instance.source.formula != nil else {
+            throw FabricError.catalogItemUnavailable(instance.name)
+        }
+    }
+
+    private func runMeilisearchService(
+        action: ServiceAction,
+        instance: ServiceInstance,
+        brew: URL,
+        upgradeDatabase: Bool
+    ) async throws {
+        let masterKey = try meilisearchMasterKeys.masterKey(serviceID: instance.id)
+        if let masterKey {
+            try await setLaunchEnvironment(name: "MEILI_MASTER_KEY", value: masterKey, sensitive: true)
+        }
+        if upgradeDatabase {
+            try await setLaunchEnvironment(name: "MEILI_UPGRADE_DB", value: "true", sensitive: false)
+        }
+
+        do {
+            _ = try await runBrew(
+                brew,
+                arguments: ["services", action.rawValue, instance.source.formula!],
+                timeout: .seconds(10 * 60)
+            )
+        } catch {
+            await clearMeilisearchLaunchEnvironment()
+            throw error
+        }
+        await clearMeilisearchLaunchEnvironment()
+    }
+
+    private func setLaunchEnvironment(
+        name: String,
+        value: String,
+        sensitive: Bool
+    ) async throws {
+        let result = try await runner.run(
+            ProcessRequest(
+                executableURL: URL(fileURLWithPath: "/bin/launchctl"),
+                arguments: ["setenv", name, value],
+                timeout: .seconds(30),
+                displayCommand: sensitive
+                    ? "launchctl setenv \(name) [REDACTED]"
+                    : "launchctl setenv \(name) \(value)"
+            )
+        )
+        try requireSuccess(
+            result,
+            command: sensitive
+                ? "launchctl setenv \(name) [REDACTED]"
+                : "launchctl setenv \(name) \(value)"
+        )
+    }
+
+    private func clearMeilisearchLaunchEnvironment() async {
+        for name in ["MEILI_MASTER_KEY", "MEILI_UPGRADE_DB"] {
+            _ = try? await runner.run(
+                ProcessRequest(
+                    executableURL: URL(fileURLWithPath: "/bin/launchctl"),
+                    arguments: ["unsetenv", name],
+                    timeout: .seconds(30)
+                )
+            )
         }
     }
 

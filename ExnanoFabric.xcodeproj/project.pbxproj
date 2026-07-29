@@ -7,10 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		04B35D3EEE7A44447CDFF865 /* HomebrewClientMeilisearchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19D2AC6CFB9EA73D0A826952 /* HomebrewClientMeilisearchTests.swift */; };
 		0995E687C55DB57B84972501 /* HomebrewOutputParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9844A31323BA3BF4634EDAA /* HomebrewOutputParser.swift */; };
 		0A118918A6CD7D1972CCF49A /* ServiceCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 213A5FC980904137F17C8989 /* ServiceCatalog.swift */; };
 		0F9E502C707F1C7C61067B30 /* ServiceInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F644573907C1724C31689EB0 /* ServiceInstance.swift */; };
 		1CFD26AB53B3D5FF13D5E44C /* FabricCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC33DE673984F85787E36EB /* FabricCore.framework */; };
+		1F188E0B5A3BAC8B9307ED40 /* MeilisearchMasterKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B278872D40B8B6E83F961D /* MeilisearchMasterKeyStore.swift */; };
 		215EBCAB6F4C2DAF543771C7 /* FoundationProcessRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52917528C266B32061DCD91 /* FoundationProcessRunnerTests.swift */; };
 		2B73AA6BF93A0CB31E71EBFD /* FabricCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC33DE673984F85787E36EB /* FabricCore.framework */; };
 		35A88B4DD3F27611B08433F5 /* FabricApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E1CF66295387B26539FA9F /* FabricApp.swift */; };
@@ -91,9 +93,11 @@
 		025CE22568D1E0D2427A134C /* HomebrewLocator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewLocator.swift; sourceTree = "<group>"; };
 		0CC55254DED31271273B6E45 /* JSONServiceInstanceStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONServiceInstanceStore.swift; sourceTree = "<group>"; };
 		117182027A5E86C6A44EE37E /* ServiceInstanceStoring.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceInstanceStoring.swift; sourceTree = "<group>"; };
+		19D2AC6CFB9EA73D0A826952 /* HomebrewClientMeilisearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewClientMeilisearchTests.swift; sourceTree = "<group>"; };
 		213A5FC980904137F17C8989 /* ServiceCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalog.swift; sourceTree = "<group>"; };
 		22DCE26886D1D526C7F57D66 /* ServiceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceListView.swift; sourceTree = "<group>"; };
 		2CA28FD39FDAD359363414FE /* FabricError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FabricError.swift; sourceTree = "<group>"; };
+		30B278872D40B8B6E83F961D /* MeilisearchMasterKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeilisearchMasterKeyStore.swift; sourceTree = "<group>"; };
 		333469504D58C1AD6C76930F /* FabricPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FabricPaths.swift; sourceTree = "<group>"; };
 		3F49494EE55E59EB79BF1D84 /* FabricCoreTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FabricCoreTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FDA80AA69D135E98B4F555C /* LoginItemController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemController.swift; sourceTree = "<group>"; };
@@ -278,6 +282,7 @@
 				025CE22568D1E0D2427A134C /* HomebrewLocator.swift */,
 				F7E59E9C711BD6835CC2FC5D /* HomebrewModels.swift */,
 				B9844A31323BA3BF4634EDAA /* HomebrewOutputParser.swift */,
+				30B278872D40B8B6E83F961D /* MeilisearchMasterKeyStore.swift */,
 			);
 			path = Homebrew;
 			sourceTree = "<group>";
@@ -295,6 +300,7 @@
 			children = (
 				C9C2EBB603FD199AF0A666C3 /* FabricRuntimeTests.swift */,
 				C52917528C266B32061DCD91 /* FoundationProcessRunnerTests.swift */,
+				19D2AC6CFB9EA73D0A826952 /* HomebrewClientMeilisearchTests.swift */,
 				EAD09E3564517BE11793097C /* HomebrewOutputParserTests.swift */,
 				6DF58FF9CA2296DD7419CA1D /* JSONServiceInstanceStoreTests.swift */,
 				FB51B475088ED07B271C0FFE /* ServiceKindTests.swift */,
@@ -497,6 +503,7 @@
 				44C2406A5D3A7668CC0EB3FD /* HomebrewModels.swift in Sources */,
 				0995E687C55DB57B84972501 /* HomebrewOutputParser.swift in Sources */,
 				55CD2D2AFC20559ED3E74C34 /* JSONServiceInstanceStore.swift in Sources */,
+				1F188E0B5A3BAC8B9307ED40 /* MeilisearchMasterKeyStore.swift in Sources */,
 				9E8CE7D650D0E567156F340F /* ProcessRunning.swift in Sources */,
 				0A118918A6CD7D1972CCF49A /* ServiceCatalog.swift in Sources */,
 				0F9E502C707F1C7C61067B30 /* ServiceInstance.swift in Sources */,
@@ -530,6 +537,7 @@
 			files = (
 				945402046C09CA0AD5D52BA0 /* FabricRuntimeTests.swift in Sources */,
 				215EBCAB6F4C2DAF543771C7 /* FoundationProcessRunnerTests.swift in Sources */,
+				04B35D3EEE7A44447CDFF865 /* HomebrewClientMeilisearchTests.swift in Sources */,
 				AE5EFCA4EB6545F7C0D1A814 /* HomebrewOutputParserTests.swift in Sources */,
 				658638AA76BD9D4E2CD8B32C /* JSONServiceInstanceStoreTests.swift in Sources */,
 				B86C96D837673CBCC1EC09BE /* ServiceKindTests.swift in Sources */,

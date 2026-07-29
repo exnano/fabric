@@ -26,6 +26,17 @@ private actor PreviewServiceBackend: ServiceManagingBackend {
         instance.packageLock!
     }
 
+    func meilisearchMasterKey(for instance: ServiceInstance) async throws -> String? {
+        "preview-master-key-1234"
+    }
+
+    func setMeilisearchMasterKey(
+        _ masterKey: String,
+        for instance: ServiceInstance
+    ) async throws {}
+
+    func upgradeMeilisearchDatabase(for instance: ServiceInstance) async throws {}
+
     func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference] {
         []
     }

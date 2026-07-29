@@ -6,23 +6,26 @@ public struct ProcessRequest: Hashable, Sendable {
     public let environment: [String: String]
     public let timeout: Duration
     public let maximumOutputBytes: Int
+    private let displayCommandOverride: String?
 
     public init(
         executableURL: URL,
         arguments: [String] = [],
         environment: [String: String] = [:],
         timeout: Duration = .seconds(60),
-        maximumOutputBytes: Int = 4 * 1_024 * 1_024
+        maximumOutputBytes: Int = 4 * 1_024 * 1_024,
+        displayCommand: String? = nil
     ) {
         self.executableURL = executableURL
         self.arguments = arguments
         self.environment = environment
         self.timeout = timeout
         self.maximumOutputBytes = maximumOutputBytes
+        displayCommandOverride = displayCommand
     }
 
     public var displayCommand: String {
-        ([executableURL.lastPathComponent] + arguments).joined(separator: " ")
+        displayCommandOverride ?? ([executableURL.lastPathComponent] + arguments).joined(separator: " ")
     }
 }
 
