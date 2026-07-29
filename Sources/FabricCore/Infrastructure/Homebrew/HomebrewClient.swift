@@ -120,29 +120,10 @@ public actor HomebrewClient: ServiceManagingBackend {
             )
         }
 
-        let installedAfter = try await installedFormulae(using: brew)
-        guard let version = installedAfter[formula]?.versions.last else {
-            throw FabricError.packageVersionMissing(formula)
-        }
-
-        let cellarResult = try? await runBrew(
-            brew,
-            arguments: ["--cellar", formula],
-            timeout: .seconds(30)
-        )
-        let cellarPath = cellarResult?.standardOutput.trimmingCharacters(in: .whitespacesAndNewlines)
-        let possibleKegPath = cellarPath.map {
-            URL(fileURLWithPath: $0).appendingPathComponent(version).path
-        }
-        let kegPath = possibleKegPath.flatMap {
-            FileManager.default.fileExists(atPath: $0) ? $0 : nil
-        }
-
-        return PackageLock(
+        return try await packageLock(
             formula: formula,
-            installedVersion: version,
-            kegPath: kegPath,
-            pinOwnership: pinnedBefore.contains(formula) ? .preexisting : .fabric
+            pinOwnership: pinnedBefore.contains(formula) ? .preexisting : .fabric,
+            using: brew
         )
     }
 
@@ -195,6 +176,80 @@ public actor HomebrewClient: ServiceManagingBackend {
         }
     }
 
+    public func performPackageAction(
+        _ action: PackageAction,
+        for instance: ServiceInstance
+    ) async throws -> PackageLock {
+        guard
+            case let .homebrew(formula) = instance.source,
+            let existingLock = instance.packageLock
+        else {
+            throw FabricError.catalogItemUnavailable(instance.name)
+        }
+
+        try validate(formula: formula)
+        let brew = try locator.locate()
+        let pinnedBefore = try await pinnedFormulae(using: brew)
+        let wasPinned = pinnedBefore.contains(formula)
+
+        switch action {
+        case .pin:
+            if !wasPinned {
+                _ = try await runBrew(
+                    brew,
+                    arguments: ["pin", formula],
+                    timeout: .seconds(120)
+                )
+            }
+        case .unpin:
+            if wasPinned {
+                _ = try await runBrew(
+                    brew,
+                    arguments: ["unpin", formula],
+                    timeout: .seconds(120)
+                )
+            }
+        case .upgrade:
+            if wasPinned {
+                _ = try await runBrew(
+                    brew,
+                    arguments: ["unpin", formula],
+                    timeout: .seconds(120)
+                )
+            }
+
+            do {
+                _ = try await runBrew(
+                    brew,
+                    arguments: ["upgrade", formula],
+                    timeout: .seconds(30 * 60)
+                )
+                if wasPinned {
+                    _ = try await runBrew(
+                        brew,
+                        arguments: ["pin", formula],
+                        timeout: .seconds(120)
+                    )
+                }
+            } catch {
+                if wasPinned {
+                    _ = try? await runBrew(
+                        brew,
+                        arguments: ["pin", formula],
+                        timeout: .seconds(120)
+                    )
+                }
+                throw error
+            }
+        }
+
+        return try await packageLock(
+            formula: formula,
+            pinOwnership: existingLock.pinOwnership,
+            using: brew
+        )
+    }
+
     public func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference] {
         switch instance.source {
         case let .homebrew(formula):
@@ -202,6 +257,39 @@ public actor HomebrewClient: ServiceManagingBackend {
         case .laravelValet:
             return valetLogFiles()
         }
+    }
+
+    private func packageLock(
+        formula: String,
+        pinOwnership: PinOwnership,
+        using brew: URL
+    ) async throws -> PackageLock {
+        let installed = try await installedFormulae(using: brew)
+        guard let version = installed[formula]?.versions.last else {
+            throw FabricError.packageVersionMissing(formula)
+        }
+
+        let pinned = try await pinnedFormulae(using: brew)
+        let cellarResult = try? await runBrew(
+            brew,
+            arguments: ["--cellar", formula],
+            timeout: .seconds(30)
+        )
+        let cellarPath = cellarResult?.standardOutput.trimmingCharacters(in: .whitespacesAndNewlines)
+        let possibleKegPath = cellarPath.map {
+            URL(fileURLWithPath: $0).appendingPathComponent(version).path
+        }
+        let kegPath = possibleKegPath.flatMap {
+            FileManager.default.fileExists(atPath: $0) ? $0 : nil
+        }
+
+        return PackageLock(
+            formula: formula,
+            installedVersion: version,
+            kegPath: kegPath,
+            pinOwnership: pinOwnership,
+            isPinned: pinned.contains(formula)
+        )
     }
 
     private func installedFormulae(using brew: URL) async throws -> [String: InstalledFormula] {

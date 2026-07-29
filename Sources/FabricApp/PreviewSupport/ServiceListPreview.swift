@@ -19,6 +19,13 @@ private actor PreviewServiceBackend: ServiceManagingBackend {
 
     func perform(_ action: ServiceAction, for instance: ServiceInstance) async throws {}
 
+    func performPackageAction(
+        _ action: PackageAction,
+        for instance: ServiceInstance
+    ) async throws -> PackageLock {
+        instance.packageLock!
+    }
+
     func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference] {
         []
     }

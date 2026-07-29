@@ -102,6 +102,22 @@ public actor FabricRuntime {
         try await backend.perform(action, for: instance)
     }
 
+    @discardableResult
+    public func performPackageAction(
+        _ action: PackageAction,
+        serviceID: UUID
+    ) async throws -> ServiceInstance {
+        var instances = try await store.load()
+        guard let index = instances.firstIndex(where: { $0.id == serviceID }) else {
+            throw FabricError.serviceNotFound
+        }
+
+        let packageLock = try await backend.performPackageAction(action, for: instances[index])
+        instances[index].packageLock = packageLock
+        try await store.save(instances)
+        return instances[index]
+    }
+
     public func logFiles(serviceID: UUID) async throws -> [LogFileReference] {
         let instances = try await store.load()
         guard let instance = instances.first(where: { $0.id == serviceID }) else {

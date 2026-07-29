@@ -38,6 +38,7 @@ public struct PackageLock: Codable, Hashable, Sendable {
     public let installedVersion: String
     public let kegPath: String?
     public let pinOwnership: PinOwnership
+    public let isPinned: Bool
     public let lockedAt: Date
 
     public init(
@@ -45,13 +46,34 @@ public struct PackageLock: Codable, Hashable, Sendable {
         installedVersion: String,
         kegPath: String?,
         pinOwnership: PinOwnership,
+        isPinned: Bool = true,
         lockedAt: Date = .now
     ) {
         self.formula = formula
         self.installedVersion = installedVersion
         self.kegPath = kegPath
         self.pinOwnership = pinOwnership
+        self.isPinned = isPinned
         self.lockedAt = lockedAt
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case formula
+        case installedVersion
+        case kegPath
+        case pinOwnership
+        case isPinned
+        case lockedAt
+    }
+
+    public init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        formula = try container.decode(String.self, forKey: .formula)
+        installedVersion = try container.decode(String.self, forKey: .installedVersion)
+        kegPath = try container.decodeIfPresent(String.self, forKey: .kegPath)
+        pinOwnership = try container.decode(PinOwnership.self, forKey: .pinOwnership)
+        isPinned = try container.decodeIfPresent(Bool.self, forKey: .isPinned) ?? true
+        lockedAt = try container.decode(Date.self, forKey: .lockedAt)
     }
 }
 
@@ -84,7 +106,7 @@ public struct ServiceInstance: Codable, Hashable, Identifiable, Sendable {
     public var name: String
     public let kind: ServiceKind
     public let source: ServiceSource
-    public let packageLock: PackageLock?
+    public var packageLock: PackageLock?
     public var endpoints: [ServiceEndpoint]
     public let createdAt: Date
 
@@ -143,6 +165,20 @@ public struct ManagedService: Identifiable, Hashable, Sendable {
     }
 
     public var id: UUID { instance.id }
+}
+
+public enum PackageAction: String, CaseIterable, Codable, Hashable, Sendable {
+    case pin
+    case unpin
+    case upgrade
+
+    public var displayName: String {
+        switch self {
+        case .pin: "Lock Version"
+        case .unpin: "Unlock Version"
+        case .upgrade: "Upgrade"
+        }
+    }
 }
 
 public enum ServiceAction: String, CaseIterable, Codable, Hashable, Sendable {

@@ -28,6 +28,30 @@ struct FabricRuntimeTests {
         #expect(persisted.map(\.id) == [added.id])
     }
 
+    @Test("Package actions update the persisted package state")
+    func packageAction() async throws {
+        let instance = ServiceInstance(
+            name: "Redis",
+            kind: .redis,
+            source: .homebrew(formula: "redis"),
+            packageLock: PackageLock(
+                formula: "redis",
+                installedVersion: "1.0.0",
+                kegPath: nil,
+                pinOwnership: .fabric
+            ),
+            endpoints: [ServiceEndpoint(name: "Database", port: 6_379)]
+        )
+        let store = InMemoryServiceInstanceStore(instances: [instance])
+        let runtime = FabricRuntime(store: store, backend: FakeServiceBackend())
+
+        let updated = try await runtime.performPackageAction(.unpin, serviceID: instance.id)
+        let persisted = await store.load()
+
+        #expect(updated.packageLock?.isPinned == false)
+        #expect(persisted.first?.packageLock?.isPinned == false)
+    }
+
     @Test("The Homebrew bridge rejects a duplicate formula registration")
     func duplicateService() async throws {
         let store = InMemoryServiceInstanceStore()
@@ -73,6 +97,20 @@ private actor FakeServiceBackend: ServiceManagingBackend {
     }
 
     func perform(_ action: ServiceAction, for instance: ServiceInstance) {}
+
+    func performPackageAction(
+        _ action: PackageAction,
+        for instance: ServiceInstance
+    ) -> PackageLock {
+        let lock = instance.packageLock!
+        return PackageLock(
+            formula: lock.formula,
+            installedVersion: action == .upgrade ? "2.0.0" : lock.installedVersion,
+            kegPath: lock.kegPath,
+            pinOwnership: lock.pinOwnership,
+            isPinned: action != .unpin
+        )
+    }
 
     func logFiles(for instance: ServiceInstance) -> [LogFileReference] {
         []
