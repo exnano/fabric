@@ -12,6 +12,9 @@ settings:
     DEVELOPMENT_TEAM: 6G94876K55
     CODE_SIGN_STYLE: Automatic
     MACOSX_DEPLOYMENT_TARGET: "15.0"
+  configs:
+    Debug:
+      SWIFT_ENABLE_EXPLICIT_MODULES: NO
 configs:
   Debug: debug
   Release: release
