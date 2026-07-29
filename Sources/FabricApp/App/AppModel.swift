@@ -155,6 +155,50 @@ final class AppModel: ObservableObject {
         }
     }
 
+    func meilisearchMasterKey(for service: ManagedService) async -> String? {
+        do {
+            return try await runtime.meilisearchMasterKey(serviceID: service.id)
+        } catch {
+            present(error, title: "Could Not Read Meilisearch Master Key")
+            return nil
+        }
+    }
+
+    func setMeilisearchMasterKey(
+        _ masterKey: String,
+        on service: ManagedService
+    ) async -> Bool {
+        guard !busyServiceIDs.contains(service.id) else { return false }
+        busyServiceIDs.insert(service.id)
+        defer { busyServiceIDs.remove(service.id) }
+
+        do {
+            try await runtime.setMeilisearchMasterKey(masterKey, serviceID: service.id)
+            await refresh(showSpinner: false)
+            return true
+        } catch {
+            present(error, title: "Could Not Set Meilisearch Master Key")
+            await refresh(showSpinner: false)
+            return false
+        }
+    }
+
+    func upgradeMeilisearchDatabase(on service: ManagedService) {
+        guard !busyServiceIDs.contains(service.id) else { return }
+        busyServiceIDs.insert(service.id)
+
+        Task {
+            defer { busyServiceIDs.remove(service.id) }
+            do {
+                try await runtime.upgradeMeilisearchDatabase(serviceID: service.id)
+                await refresh(showSpinner: false)
+            } catch {
+                present(error, title: "Could Not Upgrade Meilisearch Database")
+                await refresh(showSpinner: false)
+            }
+        }
+    }
+
     func showLogs(for service: ManagedService) {
         Task {
             do {

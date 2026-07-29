@@ -1,9 +1,12 @@
+import AppKit
 import FabricCore
 import SwiftUI
 
 struct ServiceRowView: View {
     @EnvironmentObject private var model: AppModel
     @State private var isUpgradeConfirmationPresented = false
+    @State private var isDatabaseUpgradeConfirmationPresented = false
+    @State private var isMasterKeyPresented = false
     let service: ManagedService
 
     private var isBusy: Bool {
@@ -36,6 +39,10 @@ struct ServiceRowView: View {
         .frame(minHeight: 72)
         .contentShape(Rectangle())
         .help(service.runtime.summary)
+        .sheet(isPresented: $isMasterKeyPresented) {
+            MeilisearchMasterKeySheet(service: service)
+                .environmentObject(model)
+        }
         .confirmationDialog(
             "Upgrade \(service.instance.name)?",
             isPresented: $isUpgradeConfirmationPresented,
@@ -47,6 +54,18 @@ struct ServiceRowView: View {
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("Homebrew may restart this service. Unversioned database formulae can cross major versions; back up important data first.")
+        }
+        .confirmationDialog(
+            "Upgrade the Meilisearch database?",
+            isPresented: $isDatabaseUpgradeConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Restart with --upgrade-db") {
+                model.upgradeMeilisearchDatabase(on: service)
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Database upgrades are not atomic. Create and verify a Meilisearch snapshot before continuing. Databases older than v1.12 may require dump migration instead.")
         }
     }
 
@@ -114,6 +133,18 @@ struct ServiceRowView: View {
             Button("Upgrade with Homebrew…", systemImage: "arrow.up.circle") {
                 isUpgradeConfirmationPresented = true
             }
+
+            if service.instance.kind == .meilisearch {
+                Divider()
+
+                Button("Master Key…", systemImage: "key") {
+                    isMasterKeyPresented = true
+                }
+
+                Button("Upgrade Database…", systemImage: "externaldrive.badge.arrow.up") {
+                    isDatabaseUpgradeConfirmationPresented = true
+                }
+            }
         } label: {
             Image(systemName: service.instance.packageLock?.isPinned == true ? "lock.fill" : "lock.open")
                 .frame(width: 17, height: 17)
@@ -140,6 +171,103 @@ struct ServiceRowView: View {
         case .start: service.runtime.status == .running
         case .stop: service.runtime.status == .offline
         case .restart: service.runtime.status == .offline
+        }
+    }
+}
+
+private struct MeilisearchMasterKeySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @EnvironmentObject private var model: AppModel
+
+    let service: ManagedService
+
+    @State private var masterKey = ""
+    @State private var isRevealed = false
+    @State private var isLoading = true
+    @State private var isSaving = false
+
+    private var isValid: Bool {
+        masterKey.lengthOfBytes(using: .utf8) >= 16
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Meilisearch Master Key")
+                    .font(.title2.weight(.semibold))
+                Text("The master key grants full control of this Meilisearch instance.")
+                    .foregroundStyle(.secondary)
+            }
+
+            if isLoading {
+                ProgressView("Reading from Keychain…")
+                    .frame(maxWidth: .infinity, minHeight: 64)
+            } else {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Group {
+                            if isRevealed {
+                                TextField("At least 16 bytes", text: $masterKey)
+                            } else {
+                                SecureField("At least 16 bytes", text: $masterKey)
+                            }
+                        }
+                        .textFieldStyle(.roundedBorder)
+
+                        Button {
+                            isRevealed.toggle()
+                        } label: {
+                            Image(systemName: isRevealed ? "eye.slash" : "eye")
+                        }
+                        .help(isRevealed ? "Hide master key" : "Show master key")
+
+                        Button {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(masterKey, forType: .string)
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                        }
+                        .disabled(masterKey.isEmpty)
+                        .help("Copy master key")
+                    }
+
+                    Text(isValid ? "Stored in macOS Keychain." : "The key must contain at least 16 bytes.")
+                        .font(.caption)
+                        .foregroundStyle(isValid ? Color.secondary : Color.red)
+                }
+
+                HStack {
+                    Button("Generate Secure Key") {
+                        masterKey = UUID().uuidString.replacingOccurrences(of: "-", with: "")
+                        isRevealed = true
+                    }
+
+                    Spacer()
+
+                    Button("Cancel", role: .cancel) {
+                        dismiss()
+                    }
+
+                    Button("Save & Restart") {
+                        isSaving = true
+                        Task {
+                            if await model.setMeilisearchMasterKey(masterKey, on: service) {
+                                dismiss()
+                            } else {
+                                isSaving = false
+                            }
+                        }
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(!isValid || isSaving)
+                }
+            }
+        }
+        .padding(24)
+        .frame(width: 520)
+        .task {
+            masterKey = await model.meilisearchMasterKey(for: service) ?? ""
+            isLoading = false
         }
     }
 }
