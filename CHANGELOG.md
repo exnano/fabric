@@ -4,6 +4,16 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Added
+
+- Add Meilisearch master-key generation, secure reveal/copy, and Keychain persistence.
+- Add a confirmed Meilisearch database migration restart using `--upgrade-db`.
+
+### Security
+
+- Inject the Meilisearch master key into launchd only while starting the service, redact it from process diagnostics, and clear the transient environment afterward.
+
+
 ## [0.1.3] - 2026-07-14
 
 ### Changed

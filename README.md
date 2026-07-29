@@ -17,6 +17,8 @@
 - Pins the installed formula so normal Homebrew upgrades do not move it unexpectedly.
 - Lets users lock or unlock a registered formula and run an explicit, confirmed Homebrew upgrade.
 - Restores the prior pin after an upgrade and tracks whether a pin belonged to the user before Fabric touched it.
+- Stores Meilisearch master keys in macOS Keychain, with secure reveal, copy, generation, and restart controls.
+- Restarts Meilisearch with `--upgrade-db` on demand after an explicit snapshot/migration warning.
 - Lists added services with source, version, endpoints, and status.
 - Orders services consistently by localized name, then status when names match.
 - Starts, stops, and restarts services.
@@ -33,7 +35,7 @@
 | PostgreSQL versions | Discover/install/pin; singleton `brew services` management | Isolated clusters with major-version safeguards |
 | Redis versions | Discover/install/pin; singleton `brew services` management | Multiple Fabric LaunchAgents and ports |
 | Valkey versions | Discover/install/pin; singleton `brew services` management | Multiple Fabric LaunchAgents and ports |
-| Meilisearch versions | Discover/install/pin; singleton `brew services` management | Isolated databases, keys, and ports |
+| Meilisearch versions | Discover/install/pin; Keychain master key and `--upgrade-db` restart | Isolated databases, keys, and ports |
 | Typesense versions | Discovers formulae from already configured taps | Validated trusted source and isolated instances |
 | Mailpit | Discover/install/pin; SMTP and web endpoints shown | Multiple isolated SMTP/web port pairs |
 | RustFS | Discovers formulae from already configured taps | Validated trusted source and isolated instances |
