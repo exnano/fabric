@@ -10,6 +10,7 @@ public actor HomebrewClient: ServiceManagingBackend {
     private let locator: HomebrewLocator
     private let homeDirectory: URL
     private let meilisearchMasterKeys: any MeilisearchMasterKeyStoring
+    private var busyMeilisearchFormulae: Set<String> = []
 
     public init(
         runner: any ProcessRunning = FoundationProcessRunner(),
@@ -130,6 +131,39 @@ public actor HomebrewClient: ServiceManagingBackend {
         )
     }
 
+    public func packageMetadata(for instances: [ServiceInstance]) async throws -> [UUID: PackageLock] {
+        let formulae = Set(instances.compactMap(\.source.formula)).sorted()
+        guard !formulae.isEmpty else { return [:] }
+        for formula in formulae { try validate(formula: formula) }
+        let brew = try locator.locate()
+        let result = try await runBrew(
+            brew,
+            arguments: ["info", "--json=v2", "--formula"] + formulae,
+            timeout: .seconds(120)
+        )
+        let info = try JSONDecoder().decode(HomebrewInfo.self, from: Data(result.standardOutput.utf8))
+        var metadata: [UUID: PackageLock] = [:]
+        for instance in instances {
+            guard let formula = instance.source.formula else { continue }
+            guard let record = HomebrewFormulaInfo.match(formula, in: info.formulae),
+                  let version = record.currentVersion else {
+                throw FabricError.packageVersionMissing(formula)
+            }
+            let old = instance.packageLock
+            // Never carry an old keg path across an external upgrade. No filesystem
+            // or registry writes are needed to display these current observations.
+            metadata[instance.id] = PackageLock(
+                formula: formula,
+                installedVersion: version,
+                kegPath: old?.installedVersion == version ? old?.kegPath : nil,
+                pinOwnership: old?.pinOwnership ?? .preexisting,
+                isPinned: record.pinned,
+                lockedAt: old?.lockedAt ?? instance.createdAt
+            )
+        }
+        return metadata
+    }
+
     public func runtimeStates(
         for instances: [ServiceInstance]
     ) async throws -> [UUID: ServiceRuntimeState] {
@@ -143,8 +177,10 @@ public actor HomebrewClient: ServiceManagingBackend {
             switch instance.source {
             case let .homebrew(formula):
                 let serviceName = shortFormulaName(formula)
-                let record = records.first { $0.name == serviceName }
-                states[instance.id] = runtimeState(from: record)
+                let exact = records.filter { $0.name == formula }
+                let short = records.filter { $0.name == serviceName }
+                let record = exact.count == 1 ? exact[0] : (short.count == 1 ? short[0] : nil)
+                states[instance.id] = HomebrewWarningSummary.runtimeState(from: record, kind: instance.kind)
             case let .laravelValet(executablePath):
                 states[instance.id] = await valetRuntimeState(executablePath: executablePath)
             }
@@ -157,6 +193,8 @@ public actor HomebrewClient: ServiceManagingBackend {
         _ action: ServiceAction,
         for instance: ServiceInstance
     ) async throws {
+        let busyFormula = try beginMeilisearchMutation(instance)
+        defer { if let busyFormula { busyMeilisearchFormulae.remove(busyFormula) } }
         switch instance.source {
         case let .homebrew(formula):
             try validate(formula: formula)
@@ -165,8 +203,7 @@ public actor HomebrewClient: ServiceManagingBackend {
                 try await runMeilisearchService(
                     action: action,
                     instance: instance,
-                    brew: brew,
-                    upgradeDatabase: false
+                    brew: brew
                 )
             } else {
                 _ = try await runBrew(
@@ -192,6 +229,8 @@ public actor HomebrewClient: ServiceManagingBackend {
         _ action: PackageAction,
         for instance: ServiceInstance
     ) async throws -> PackageLock {
+        let busyFormula = try beginMeilisearchMutation(instance)
+        defer { if let busyFormula { busyMeilisearchFormulae.remove(busyFormula) } }
         guard
             case let .homebrew(formula) = instance.source,
             let existingLock = instance.packageLock
@@ -272,25 +311,48 @@ public actor HomebrewClient: ServiceManagingBackend {
         for instance: ServiceInstance
     ) async throws {
         try requireMeilisearch(instance)
+        let busyFormula = try beginMeilisearchMutation(instance)
+        defer { if let busyFormula { busyMeilisearchFormulae.remove(busyFormula) } }
         try meilisearchMasterKeys.setMasterKey(masterKey, serviceID: instance.id)
         let brew = try locator.locate()
         try await runMeilisearchService(
             action: .restart,
             instance: instance,
-            brew: brew,
-            upgradeDatabase: false
+            brew: brew
         )
     }
 
+    /// Returns when launchd accepts the request, not when the database upgrade completes.
     public func upgradeMeilisearchDatabase(for instance: ServiceInstance) async throws {
         try requireMeilisearch(instance)
+        let busyFormula = try beginMeilisearchMutation(instance)
+        defer { if let busyFormula { busyMeilisearchFormulae.remove(busyFormula) } }
+        let formula = instance.source.formula!
+        try validate(formula: formula)
         let brew = try locator.locate()
-        try await runMeilisearchService(
-            action: .restart,
-            instance: instance,
-            brew: brew,
-            upgradeDatabase: true
-        )
+        let records: [HomebrewServiceRecord]
+        do {
+            records = try await serviceRecords(using: brew)
+        } catch {
+            throw MeilisearchUpgradeError(message: "Cannot read Homebrew service records. Check brew services list before retrying. No service was stopped.")
+        }
+        let exact = records.filter { $0.name == formula }
+        let matches = exact.isEmpty ? records.filter { $0.name == shortFormulaName(formula) } : exact
+        guard matches.count == 1 else {
+            throw MeilisearchUpgradeError(message: "Cannot identify one existing Meilisearch Homebrew service. Register the normal user service first.")
+        }
+        let masterKey = try meilisearchMasterKeys.masterKey(serviceID: instance.id)
+        try await MeilisearchDatabaseUpgrader(runner: runner, homeDirectory: homeDirectory)
+            .launch(record: matches[0], masterKey: masterKey)
+    }
+
+    private func beginMeilisearchMutation(_ instance: ServiceInstance) throws -> String? {
+        guard instance.kind == .meilisearch, let formula = instance.source.formula else { return nil }
+        let key = shortFormulaName(formula)
+        guard busyMeilisearchFormulae.insert(key).inserted else {
+            throw MeilisearchUpgradeError(message: "A Meilisearch operation is already in progress. Wait for it to finish before trying again.")
+        }
+        return key
     }
 
     public func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference] {
@@ -311,15 +373,11 @@ public actor HomebrewClient: ServiceManagingBackend {
     private func runMeilisearchService(
         action: ServiceAction,
         instance: ServiceInstance,
-        brew: URL,
-        upgradeDatabase: Bool
+        brew: URL
     ) async throws {
         let masterKey = try meilisearchMasterKeys.masterKey(serviceID: instance.id)
         if let masterKey {
             try await setLaunchEnvironment(name: "MEILI_MASTER_KEY", value: masterKey, sensitive: true)
-        }
-        if upgradeDatabase {
-            try await setLaunchEnvironment(name: "MEILI_UPGRADE_DB", value: "true", sensitive: false)
         }
 
         do {
@@ -359,15 +417,13 @@ public actor HomebrewClient: ServiceManagingBackend {
     }
 
     private func clearMeilisearchLaunchEnvironment() async {
-        for name in ["MEILI_MASTER_KEY", "MEILI_UPGRADE_DB"] {
-            _ = try? await runner.run(
-                ProcessRequest(
-                    executableURL: URL(fileURLWithPath: "/bin/launchctl"),
-                    arguments: ["unsetenv", name],
-                    timeout: .seconds(30)
-                )
+        _ = try? await runner.run(
+            ProcessRequest(
+                executableURL: URL(fileURLWithPath: "/bin/launchctl"),
+                arguments: ["unsetenv", "MEILI_MASTER_KEY"],
+                timeout: .seconds(30)
             )
-        }
+        )
     }
 
     private func packageLock(
@@ -513,10 +569,10 @@ public actor HomebrewClient: ServiceManagingBackend {
             }
             return ServiceRuntimeState(
                 status: .warning,
-                summary: result.standardOutput.isEmpty ? "Valet status is unclear." : result.standardOutput
+                summary: "Valet status is unclear. Exit code: \(result.exitCode). Open Logs for details."
             )
         } catch {
-            return ServiceRuntimeState(status: .warning, summary: error.localizedDescription)
+            return ServiceRuntimeState(status: .warning, summary: "Valet status could not be checked. Open Logs for details.")
         }
     }
 
@@ -589,25 +645,5 @@ public actor HomebrewClient: ServiceManagingBackend {
             return kind.displayName
         }
         return "\(kind.displayName) \(name[name.index(after: atIndex)...])"
-    }
-
-    private func runtimeState(from record: HomebrewServiceRecord?) -> ServiceRuntimeState {
-        guard let record else { return .offline }
-
-        switch record.status.lowercased() {
-        case "started" where record.exitCode == nil || record.exitCode == 0:
-            return ServiceRuntimeState(
-                status: .running,
-                summary: "Managed by Homebrew services."
-            )
-        case "none", "stopped":
-            return .offline
-        default:
-            let exitSummary = record.exitCode.map { " Exit code: \($0)." } ?? ""
-            return ServiceRuntimeState(
-                status: .warning,
-                summary: "Homebrew reports \(record.status).\(exitSummary)"
-            )
-        }
     }
 }

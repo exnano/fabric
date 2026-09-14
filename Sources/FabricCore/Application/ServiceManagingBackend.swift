@@ -8,6 +8,8 @@ public protocol ServiceManagingBackend: Sendable {
     func runtimeStates(
         for instances: [ServiceInstance]
     ) async throws -> [UUID: ServiceRuntimeState]
+    /// Read-only observations; omitted entries retain their persisted metadata.
+    func packageMetadata(for instances: [ServiceInstance]) async throws -> [UUID: PackageLock]
     func perform(_ action: ServiceAction, for instance: ServiceInstance) async throws
     func performPackageAction(
         _ action: PackageAction,
@@ -20,4 +22,10 @@ public protocol ServiceManagingBackend: Sendable {
     ) async throws
     func upgradeMeilisearchDatabase(for instance: ServiceInstance) async throws
     func logFiles(for instance: ServiceInstance) async throws -> [LogFileReference]
+}
+
+public extension ServiceManagingBackend {
+    func packageMetadata(for instances: [ServiceInstance]) async throws -> [UUID: PackageLock] {
+        [:]
+    }
 }

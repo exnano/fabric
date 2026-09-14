@@ -30,28 +30,41 @@ public actor FabricRuntime {
             return DashboardSnapshot(services: [])
         }
 
+        var observedInstances = instances
+        var notices: [String] = []
+        do {
+            let metadata = try await backend.packageMetadata(for: instances)
+            for index in observedInstances.indices {
+                if let lock = metadata[observedInstances[index].id] {
+                    observedInstances[index].packageLock = lock
+                }
+            }
+        } catch {
+            notices.append("Package metadata could not be refreshed. Showing saved versions and pin state.")
+        }
+
         do {
             let runtimeStates = try await backend.runtimeStates(for: instances)
-            let services = instances.map { instance in
+            let services = observedInstances.map { instance in
                 ManagedService(
                     instance: instance,
                     runtime: runtimeStates[instance.id] ?? .offline
                 )
             }
-            return DashboardSnapshot(services: services)
+            return DashboardSnapshot(services: services, notices: notices)
         } catch {
-            let services = instances.map { instance in
+            let services = observedInstances.map { instance in
                 ManagedService(
                     instance: instance,
                     runtime: ServiceRuntimeState(
                         status: .warning,
-                        summary: error.localizedDescription
+                        summary: "Service status could not be checked. Try refreshing again."
                     )
                 )
             }
             return DashboardSnapshot(
                 services: services,
-                notices: [error.localizedDescription]
+                notices: notices + ["Service status could not be refreshed."]
             )
         }
     }
