@@ -4,14 +4,39 @@ All notable changes to Exnano Fabric are documented here. The project follows Se
 
 ## [Unreleased]
 
+### Fixed
+
+- Replace transient global upgrade environment injection with an explicit, service-scoped Meilisearch `--upgrade-db` launch, preserving existing database configuration.
+- Preflight flag support and the existing database directory before stopping; protect temporary launch configuration and leave the original LaunchAgent unchanged.
+- Clarify verified-backup confirmation and distinguish launch acceptance from upgrade task completion.
+
+## [0.1.4] - 2026-09-14
+
+### Distribution verification — build 5
+
+- Clean build with 28 passing tests and configured security-pattern audit; Developer ID signed with hardened runtime and timestamp, notarized, stapled, and installed in `/Applications`.
+- Apple submission: `ee1b72aa-2e29-4f13-9a32-314e9babed0e` — Accepted. Installed-bundle strict signature, staple, and Gatekeeper checks passed.
+- Final stapled archive: `Exnano-Fabric-0.1.4-5.zip`; SHA-256: `876b007d391272266347ecf04e8a171e804e7be8f457c6790a4bf708b20ac9a8`.
+- Includes the bundle-derived footer version label and explicit service-scoped Meilisearch migration launch. Built from the working tree; not a clean Git tag. Notarization does not close the open runtime findings in the archived security audit.
+
 ### Added
 
-- Add Meilisearch master-key generation, secure reveal/copy, and Keychain persistence.
+- Add visible warning explanations and clickable status details with bounded, potentially stale startup-log clues.
+- Add a confirmed Restart All toolbar action that restarts added services sequentially and reports failures together.
+- Add package lock/unlock and confirmed Homebrew upgrade controls.
+- Add Xcode project and SwiftUI preview support.
+- Add Meilisearch master-key generation, reveal/copy, and Keychain persistence.
 - Add a confirmed Meilisearch database migration restart using `--upgrade-db`.
 
-### Security
+### Fixed
 
-- Inject the Meilisearch master key into launchd only while starting the service, redact it from process diagnostics, and clear the transient environment afterward.
+- Refresh installed package versions and actual pin states after external Homebrew changes without overwriting service registrations.
+- Show metadata-refresh failures without masking independently observed service status.
+
+### Known limitations
+
+- Meilisearch startup uses transient session-wide launchd environment injection. Diagnostic redaction does not hide launchctl process arguments, and key application is not durable across login or external restarts. Verify authentication after restarting.
+- Database migration remains an explicit startup request, not a verified backup or completion workflow.
 
 
 ## [0.1.3] - 2026-07-14

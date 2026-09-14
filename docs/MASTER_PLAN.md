@@ -2,6 +2,14 @@
 
 This document is the source of truth for feature scope and progress. Keep checkboxes current in the same pull request or commit that changes a feature.
 
+## 0.1.4 release checkpoint
+
+- [x] Show warning details and conservative recent-log clues without displaying raw log content in summaries.
+- [x] Reconcile dashboard versions and pin states with external Homebrew changes.
+- [x] Add a confirmed, sequential Restart All action with aggregate failure reporting.
+- [ ] Replace transient Meilisearch credential injection with durable service-scoped startup configuration.
+- [ ] Verify Meilisearch migration completion and backup prerequisites.
+
 ## Product principles
 
 - **Homebrew owns packages.** Fabric discovers, installs, and pins formulae without modifying Homebrew itself.

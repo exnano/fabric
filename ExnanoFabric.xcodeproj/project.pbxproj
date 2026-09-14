@@ -15,9 +15,11 @@
 		1F188E0B5A3BAC8B9307ED40 /* MeilisearchMasterKeyStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30B278872D40B8B6E83F961D /* MeilisearchMasterKeyStore.swift */; };
 		215EBCAB6F4C2DAF543771C7 /* FoundationProcessRunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C52917528C266B32061DCD91 /* FoundationProcessRunnerTests.swift */; };
 		2B73AA6BF93A0CB31E71EBFD /* FabricCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC33DE673984F85787E36EB /* FabricCore.framework */; };
+		2E910788073F065BBEEFD144 /* HomebrewDashboardTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C73EFDC0D7AA643D67946CCE /* HomebrewDashboardTests.swift */; };
 		35A88B4DD3F27611B08433F5 /* FabricApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E1CF66295387B26539FA9F /* FabricApp.swift */; };
 		390B2A16894A7F11D7D5A54E /* FoundationProcessRunner.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6ABB18A1103356EBC6FE298 /* FoundationProcessRunner.swift */; };
 		44C2406A5D3A7668CC0EB3FD /* HomebrewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7E59E9C711BD6835CC2FC5D /* HomebrewModels.swift */; };
+		49437BDEB954F27CE817D9CA /* MeilisearchDatabaseUpgrader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C6EA7D114A82FEBE553D54 /* MeilisearchDatabaseUpgrader.swift */; };
 		532CE8F01B439C6075149534 /* FabricCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC33DE673984F85787E36EB /* FabricCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		55CD2D2AFC20559ED3E74C34 /* JSONServiceInstanceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC55254DED31271273B6E45 /* JSONServiceInstanceStore.swift */; };
 		658638AA76BD9D4E2CD8B32C /* JSONServiceInstanceStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF58FF9CA2296DD7419CA1D /* JSONServiceInstanceStoreTests.swift */; };
@@ -44,6 +46,7 @@
 		C2AAF20ABB1466C134B446A4 /* ServiceInstanceStoring.swift in Sources */ = {isa = PBXBuildFile; fileRef = 117182027A5E86C6A44EE37E /* ServiceInstanceStoring.swift */; };
 		CAE9E1BC13545FD142131166 /* ServiceListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DCE26886D1D526C7F57D66 /* ServiceListView.swift */; };
 		DB1C6159EC26A4371A7D669A /* FabricRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB73CB216ECC1AB8B161E66 /* FabricRuntime.swift */; };
+		EE958C61069263CEBE8A3B5D /* HomebrewWarningSummary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269123500E4D10E594FBE4B6 /* HomebrewWarningSummary.swift */; };
 		F57FA58C75F896C5C0D13793 /* HomebrewClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 459CDEAD7D87FCDF61C231A1 /* HomebrewClient.swift */; };
 /* End PBXBuildFile section */
 
@@ -96,6 +99,7 @@
 		19D2AC6CFB9EA73D0A826952 /* HomebrewClientMeilisearchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewClientMeilisearchTests.swift; sourceTree = "<group>"; };
 		213A5FC980904137F17C8989 /* ServiceCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCatalog.swift; sourceTree = "<group>"; };
 		22DCE26886D1D526C7F57D66 /* ServiceListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceListView.swift; sourceTree = "<group>"; };
+		269123500E4D10E594FBE4B6 /* HomebrewWarningSummary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewWarningSummary.swift; sourceTree = "<group>"; };
 		2CA28FD39FDAD359363414FE /* FabricError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FabricError.swift; sourceTree = "<group>"; };
 		30B278872D40B8B6E83F961D /* MeilisearchMasterKeyStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeilisearchMasterKeyStore.swift; sourceTree = "<group>"; };
 		333469504D58C1AD6C76930F /* FabricPaths.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FabricPaths.swift; sourceTree = "<group>"; };
@@ -113,9 +117,11 @@
 		87440D50E3FFB162907B399E /* ServiceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceStatus.swift; sourceTree = "<group>"; };
 		AB121122966FDE82973FF105 /* ProcessRunning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessRunning.swift; sourceTree = "<group>"; };
 		AF58B8C81EC771BB0732903F /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		B3C6EA7D114A82FEBE553D54 /* MeilisearchDatabaseUpgrader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeilisearchDatabaseUpgrader.swift; sourceTree = "<group>"; };
 		B9844A31323BA3BF4634EDAA /* HomebrewOutputParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewOutputParser.swift; sourceTree = "<group>"; };
 		C501D330B2778E8C906B792F /* ServiceManagingBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceManagingBackend.swift; sourceTree = "<group>"; };
 		C52917528C266B32061DCD91 /* FoundationProcessRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationProcessRunnerTests.swift; sourceTree = "<group>"; };
+		C73EFDC0D7AA643D67946CCE /* HomebrewDashboardTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewDashboardTests.swift; sourceTree = "<group>"; };
 		C9C2EBB603FD199AF0A666C3 /* FabricRuntimeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FabricRuntimeTests.swift; sourceTree = "<group>"; };
 		D24C2E64B627B21F6D573372 /* Exnano Fabric.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Exnano Fabric.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D953A730F61CA770D1637C94 /* DashboardSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardSnapshot.swift; sourceTree = "<group>"; };
@@ -282,6 +288,8 @@
 				025CE22568D1E0D2427A134C /* HomebrewLocator.swift */,
 				F7E59E9C711BD6835CC2FC5D /* HomebrewModels.swift */,
 				B9844A31323BA3BF4634EDAA /* HomebrewOutputParser.swift */,
+				269123500E4D10E594FBE4B6 /* HomebrewWarningSummary.swift */,
+				B3C6EA7D114A82FEBE553D54 /* MeilisearchDatabaseUpgrader.swift */,
 				30B278872D40B8B6E83F961D /* MeilisearchMasterKeyStore.swift */,
 			);
 			path = Homebrew;
@@ -301,6 +309,7 @@
 				C9C2EBB603FD199AF0A666C3 /* FabricRuntimeTests.swift */,
 				C52917528C266B32061DCD91 /* FoundationProcessRunnerTests.swift */,
 				19D2AC6CFB9EA73D0A826952 /* HomebrewClientMeilisearchTests.swift */,
+				C73EFDC0D7AA643D67946CCE /* HomebrewDashboardTests.swift */,
 				EAD09E3564517BE11793097C /* HomebrewOutputParserTests.swift */,
 				6DF58FF9CA2296DD7419CA1D /* JSONServiceInstanceStoreTests.swift */,
 				FB51B475088ED07B271C0FFE /* ServiceKindTests.swift */,
@@ -502,7 +511,9 @@
 				671BE68D57F6AA3547A8DDB3 /* HomebrewLocator.swift in Sources */,
 				44C2406A5D3A7668CC0EB3FD /* HomebrewModels.swift in Sources */,
 				0995E687C55DB57B84972501 /* HomebrewOutputParser.swift in Sources */,
+				EE958C61069263CEBE8A3B5D /* HomebrewWarningSummary.swift in Sources */,
 				55CD2D2AFC20559ED3E74C34 /* JSONServiceInstanceStore.swift in Sources */,
+				49437BDEB954F27CE817D9CA /* MeilisearchDatabaseUpgrader.swift in Sources */,
 				1F188E0B5A3BAC8B9307ED40 /* MeilisearchMasterKeyStore.swift in Sources */,
 				9E8CE7D650D0E567156F340F /* ProcessRunning.swift in Sources */,
 				0A118918A6CD7D1972CCF49A /* ServiceCatalog.swift in Sources */,
@@ -538,6 +549,7 @@
 				945402046C09CA0AD5D52BA0 /* FabricRuntimeTests.swift in Sources */,
 				215EBCAB6F4C2DAF543771C7 /* FoundationProcessRunnerTests.swift in Sources */,
 				04B35D3EEE7A44447CDFF865 /* HomebrewClientMeilisearchTests.swift in Sources */,
+				2E910788073F065BBEEFD144 /* HomebrewDashboardTests.swift in Sources */,
 				AE5EFCA4EB6545F7C0D1A814 /* HomebrewOutputParserTests.swift in Sources */,
 				658638AA76BD9D4E2CD8B32C /* JSONServiceInstanceStoreTests.swift in Sources */,
 				B86C96D837673CBCC1EC09BE /* ServiceKindTests.swift in Sources */,
@@ -565,7 +577,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = ExnanoFabric;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				ENABLE_APP_SANDBOX = NO;
 				EXECUTABLE_NAME = Fabric;
 				INFOPLIST_FILE = "Config/Xcode-Info.plist";
@@ -574,7 +586,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.3;
+				MARKETING_VERSION = 0.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.exnano.fabric;
 				PRODUCT_NAME = "Exnano Fabric";
 				SDKROOT = macosx;
@@ -711,7 +723,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = ExnanoFabric;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 4;
+				CURRENT_PROJECT_VERSION = 5;
 				ENABLE_APP_SANDBOX = NO;
 				EXECUTABLE_NAME = Fabric;
 				INFOPLIST_FILE = "Config/Xcode-Info.plist";
@@ -720,7 +732,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
-				MARKETING_VERSION = 0.1.3;
+				MARKETING_VERSION = 0.1.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.exnano.fabric;
 				PRODUCT_NAME = "Exnano Fabric";
 				SDKROOT = macosx;

@@ -78,8 +78,8 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.exnano.fabric
         PRODUCT_NAME: Exnano Fabric
         EXECUTABLE_NAME: Fabric
-        MARKETING_VERSION: 0.1.3
-        CURRENT_PROJECT_VERSION: 4
+        MARKETING_VERSION: 0.1.4
+        CURRENT_PROJECT_VERSION: 5
         ASSETCATALOG_COMPILER_APPICON_NAME: ExnanoFabric
         ENABLE_APP_SANDBOX: NO
         INFOPLIST_KEY_LSUIElement: YES

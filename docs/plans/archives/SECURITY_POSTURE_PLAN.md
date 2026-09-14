@@ -1,8 +1,77 @@
 # Exnano Fabric Security Posture Plan
 
-**Status:** Executed  
-**Last executed:** 2026-07-14  
-**Scope:** tracked source, Git history content, release binary, bundle resources, signing configuration, subprocess execution, persistence, dependencies, and release workflow
+**Status:** Execution completed with open findings; archived audit record, NOT distribution approval  
+**Last executed:** 2026-09-14  
+**Previous execution:** 2026-07-14 (historical evidence retained below)  
+**Scope:** current working tree including untracked implementation files, Git history content, release binary, bundle resources, signing configuration, subprocess execution, persistence, dependencies, and release workflow
+
+## 2026-09-14 execution results
+
+The audit execution is complete. Remediation of the findings below is **not** complete. Archiving this report records the completed assessment; it does not waive open release gates or certify the app as secure.
+
+### Candidate and reproducibility
+
+- Git base: `33d4a16`, with uncommitted tracked changes and three untracked implementation/test files at the start of the audit. This is a working-tree assessment, not a clean tagged release.
+- Candidate: `dist/Exnano Fabric.app`, version **0.1.4 (build 5)**, rebuilt during this execution. The build was incremental, not a clean distribution build.
+- Executable SHA-256: `c1edfc417cff81dd9f3c4c96a61eb393558177856b59dce92b85c822d31b1bdb`. This identifies `Contents/MacOS/Fabric` only, not a ZIP or the complete bundle.
+- Candidate signature: **ad-hoc**, `flags=0x2(adhoc)`. No Developer ID authority, hardened-runtime flag, or secure timestamp was established for this candidate.
+- Runtime search paths: `/usr/lib/swift` and `@loader_path`.
+- The installed app was inspected read-only during review and also reported 0.1.4 (5), ad-hoc. This execution did not replace it; identical version labels do not prove identical content.
+
+### Verification matrix
+
+| Check | Current result and limits |
+|---|---|
+| `swift test` | Passed: 28 tests across 7 suites. Includes fake-runner migration permissions, cleanup, capability, and concurrency coverage; not a live migration/authentication test. |
+| `./scripts/build-app.sh release` | Passed; produced the candidate above. |
+| `make security-audit` | Exit 0 after the build. Output captured and sanitized to avoid copying identity values or potential secrets into the report. Pass is limited to the script's patterns/exclusions and does not close scanner defects below. |
+| `codesign --verify --deep --strict --verbose=2` | Passed on the freshly rebuilt candidate. Confirms signature consistency, not Developer ID distribution approval. |
+| Mach-O runtime search paths | Inspected on fresh candidate; no local developer-toolchain rpaths observed. |
+| Broader repository/history pattern review | No matches for configured secret/email patterns. Additional path hits were scanner literals and two vendored upstream example paths in `.agents/skills/swiftui-ui-patterns/references/scroll-reveal.md`. Do not claim there are no personal-looking paths anywhere in history. Values intentionally omitted. |
+| Untracked files | Supplemental reviewer scan covered all three untracked Swift files present at audit start; no configured pattern matches. Standard `git grep` does not cover them. |
+| Sensitive filenames | Current tracked filenames had no configured matches. Deleted historical sensitive filenames are not covered by the standard audit. |
+| Git remotes and identity | One remote reviewed; no HTTP userinfo detected. One unique author identity reviewed without copying personal values. No identity changes or history rewrite. |
+| Bundle resources | Reviewer string scan found no configured pattern matches in four other existing bundle files. Decoded asset/EXIF metadata was not independently verified; do not renew the historical metadata-cleanliness claim. |
+| Script syntax/dependencies | Reviewer syntax checks passed for build, distribution, and audit scripts. No external Swift package dependencies declared. |
+| Runtime/persistence/UI | Four read-only review workstreams completed; findings below. Private registry writes, process environment allowlisting, argument arrays, Keychain storage, and fixed warning summaries remain useful safeguards. |
+| Notarization/stapling/Gatekeeper | Not run for this candidate. Historical acceptance applies only to the historical artifacts below. |
+| Live authentication, listening addresses, login item, migration and backup | Not exercised. No service mutations, Keychain retrieval, credential rotation, or destructive database operations performed. |
+
+### Open findings and required follow-up
+
+Paths below are repository-relative. Findings are based on source inspection; exploitability and actual migration failure were not live-tested.
+
+| ID / priority | Evidence | Impact and required follow-up |
+|---|---|---|
+| SEC-01 / High | `Sources/FabricCore/Infrastructure/Homebrew/HomebrewClient.swift`: `runMeilisearchService`, `setLaunchEnvironment`, cleanup | Normal start/restart publishes the master key through session-wide `launchctl setenv` and secret-bearing argv. Redacting the display command does not protect either boundary. Cleanup failures are ignored and the key is not durable across login/external restart. Replace with verified service-scoped delivery; distinguish stored from verified-active credentials. The new migration path avoids global injection but does not fix normal starts. |
+| SEC-02 / High | `MeilisearchDatabaseUpgrader.swift`: `launch` | The updater accepts an absolute executable with self-reported flag support from a user LaunchAgent, then releases a Keychain credential to it. Canonical expected keg/version, plist symlinks, label identity, ownership, and tap identity are not established. Validate the intended service and executable before executing preflight or releasing credentials; add substitution/symlink/label tests. This requires a local configuration or supply-chain attacker, not an unauthenticated remote caller. |
+| SEC-03 / High | `MeilisearchDatabaseUpgrader.swift`: copied job configuration; `HomebrewClient.upgradeMeilisearchDatabase`; `AppModel.upgradeMeilisearchDatabase` | The loaded migration job can retain `KeepAlive` and automatically relaunch with the flag. Busy guards expire at bootstrap acceptance, so Stop, Restart All, package changes, or another migration can interrupt unfinished work. Disable automatic migration retries and track an in-progress/outcome-unknown state across app restarts until completion or explicit recovery. Current tests do not prove migration-lifetime exclusion. |
+| SEC-04 / High | `Sources/FabricCore/Application/FabricRuntime.swift`: `addService`, `performPackageAction` | Load–await–save workflows can overwrite concurrent registry updates. Atomic JSON writes do not prevent lost registrations/metadata. Add transactional or revision-checked mutations and deterministic interleaving tests. This does not itself delete service databases. |
+| SEC-05 / Medium | `scripts/security-audit.sh` | Broad exclusions omit plans and vendored skills, artifact scanning checks only the main executable, untracked files and historical sensitive filenames are absent, missing binaries are silently skipped, and `|| true` masks tool failures. Failure details can print actual secret matches. Make release mode fail closed, scan the complete candidate and relevant source/history, narrow exceptions, and report locations/rule IDs without values. A current pattern pass is not comprehensive secret scanning. |
+| SEC-06 / Medium; distribution blocker | `scripts/distribute-app.sh` | The pipeline does not enforce the audit against its rebuilt final candidate, deletes its temporary submission ZIP, does not retain final stapled archive/checksum/provenance, and removes the installed app before validating replacement. Gate the exact candidate, retain final evidence, and stage installation with recovery. Fresh Developer ID signing, hardened runtime, notarization, stapling, and Gatekeeper verification are required before external distribution of 0.1.4. |
+| SEC-07 / Medium | `Features/Logs/LogViewer.swift`; `HomebrewClient.requireSuccess`; `AppModel.present` | Raw selectable logs and subprocess errors may expose credentials, authorization headers, URLs, or workstation paths. The viewer's initial tail seek followed by `readToEnd()` does not enforce the stated read bound under concurrent growth. Add shared redaction and bounded reads with tests. Local display is not telemetry, but screenshots and copied diagnostics can leak content. |
+| SEC-08 / Medium | `Features/ServiceList/ServiceRowView.swift`: master-key sheet; `HomebrewClient.setMeilisearchMasterKey` | Clipboard copies are plaintext without expiry; rotation lacks prominent client-invalidation/durability warnings. Keychain is changed before restart succeeds, and conflicting job credentials can leave saved and active keys different. Disclose clipboard exposure, implement conditional cleanup, distinguish storage/restart/authentication outcomes, and verify effective rotation. |
+| SEC-09 / Medium | `MeilisearchDatabaseUpgrader.swift`: database-path preflight | Existing-directory validation does not prove the intended database or supported source version; even an empty directory passes. Backup verification is user acknowledgment only. Validate database identity/version and bind a verified backup to that identity before treating migration as safely gated. |
+
+### Disposition and remaining gates
+
+- [x] Execute and record automated checks on the rebuilt development candidate.
+- [x] Review current runtime, app, persistence, and release boundaries, including untracked additions.
+- [x] Separate historical release evidence from current validation.
+- [x] Record findings without reproducing credentials, personal identities, or upstream personal-path values.
+- [x] Archive this completed execution report under `docs/plans/archives` and update its README reference.
+- [ ] Remediate SEC-01 through SEC-04 before relying on secure credential delivery or reliably guarded migrations.
+- [ ] Remediate scanner/release-gate findings and re-audit the exact distribution candidate.
+- [ ] Complete fresh Developer ID/notarization/Gatekeeper validation and retain final artifact provenance.
+- [ ] Complete controlled live authentication, migration, network-binding, and login-item verification with explicit authorization and backups.
+
+No runtime fixes, commits, pushes, history rewrites, notarization submissions, or live service changes were made as part of this audit execution. Future product work and the historical unchecked roadmap items below remain open.
+
+---
+
+## Historical execution — 2026-07-14
+
+**Everything below records the prior execution and its roadmap. Its checked boxes and result statements are historical claims, not renewed guarantees for the current candidate.** Where they differ, the 2026-09-14 matrix and open findings above govern the current assessment.
 
 ## Objectives
 

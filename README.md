@@ -2,7 +2,7 @@
 
 **Fabric** is a native macOS SwiftUI menu-bar application for installing, pinning, and managing local development services provided by Homebrew. The distributed application name is **Exnano Fabric.app**.
 
-> Current version: **0.1.3 (build 4)** — toolbar refinement and global installation release.
+> Current version: **0.1.4 (build 5)** — service warning details, Homebrew metadata refresh, and confirmed Restart All.
 
 ## Current capabilities
 
@@ -22,9 +22,36 @@
 - Lists added services with source, version, endpoints, and status.
 - Orders services consistently by localized name, then status when names match.
 - Starts, stops, and restarts services.
+- Provides a confirmed Restart All toolbar action for all added services, including stopped ones; restarts run sequentially and failures are reported together.
 - Opens service logs when Homebrew/Valet exposes readable log paths.
 - Persists registrations under `~/Library/Application Support/Exnano Fabric/services.json`.
 - Detects installed PHP-FPM, Nginx, Caddy, and Laravel Valet integrations rather than offering to install them.
+
+## Warning details and Homebrew upgrades
+
+Click a service's status badge to see its full explanation and open its logs. Warning rows show Homebrew's status and exit code directly. When readable recent logs contain a recognized startup error, Fabric adds a **possible cause**, such as an incompatible Meilisearch database, an occupied port, insufficient permissions, or a full disk. Log clues may be stale; verify the latest timestamps before restarting or migrating. Fabric does not automatically repair or migrate services.
+
+To include a service in normal Homebrew upgrades:
+
+1. Choose **Unlock Version** in its package menu. This removes the actual Homebrew pin.
+2. Run `brew upgrade` in Terminal, or target one formula—for example, `brew upgrade meilisearch`.
+3. Click **Refresh** in Fabric, or wait for the next automatic refresh. Installed versions and pin states are read from Homebrew, including changes made outside Fabric.
+
+`brew list --pinned` shows packages that normal upgrades will skip. Versioned formulae such as `postgresql@17` stay on that formula's major line; upgrading them does not switch to a different formula. Back up databases before upgrading.
+
+The displayed version is installed package metadata, not a query of the running server. A restart or service-specific database migration may still be necessary. If metadata cannot be refreshed, Fabric shows a notice and keeps the saved values without changing the independently observed service status. Refresh never pins, unpins, upgrades, or restarts services and never runs `brew update`.
+
+**Existing Meilisearch limitation:** master-key startup injection is not yet durable across login or external Homebrew restarts. Verify authentication after restarting or upgrading Meilisearch; this change does not repair that launch mechanism.
+
+### Meilisearch database upgrades
+
+After creating a snapshot and waiting for its task to succeed, install the intended Meilisearch binary using Homebrew. Then choose **Upgrade Database…** from the Meilisearch package menu and confirm that your backup is verified.
+
+Fabric checks the configured executable's `--help` for exact `--upgrade-db` support (available since v1.51) and requires an explicit existing database directory. It preserves the user Homebrew LaunchAgent's database arguments, working directory, and logs, then unloads that job and registers a temporary, service-scoped job with `--upgrade-db`. The temporary plist is private (`0700` directory, `0600` file) and deleted after launch registration; the original LaunchAgent remains unchanged. When a Fabric master key exists, this migration launch passes it through the job environment, not command arguments or global launchd environment. Normal restart credential limitations described above still apply.
+
+A successful launch request is **not** a completed migration. Follow `GET /tasks?types=UpgradeDatabase` and then `GET /tasks/TASK_UID`, with appropriate authentication, until the task succeeds. Check the latest logs if startup fails. Do not restart during migration. Fabric does not create or verify snapshots, poll upgrade tasks, retry migrations, or roll back databases automatically. The loaded migration flag lasts for that job registration, including automatic process restarts; a normal Homebrew restart or login uses the unchanged original plist.
+
+Databases older than v1.12 require dump migration. Unsupported binaries fail preflight without stopping the service; Fabric does not silently substitute an experimental flag. See [Meilisearch's upgrade guide](https://www.meilisearch.com/docs/resources/migration/updating#updating-with-the-upgrade-db-flag).
 
 ## Supported service catalog
 
@@ -140,7 +167,7 @@ Run the repeatable repository and release-binary checks with:
 make security-audit
 ```
 
-The executed posture, findings, remediations, and release gates are documented in [`docs/plans/SECURITY_POSTURE_PLAN.md`](docs/plans/SECURITY_POSTURE_PLAN.md).
+The security audit executed on 2026-09-14 is archived in [`docs/plans/archives/SECURITY_POSTURE_PLAN.md`](docs/plans/archives/SECURITY_POSTURE_PLAN.md). The execution is complete **with open findings**, not distribution approval; the report records current verification, historical release evidence, and remaining remediation/release gates.
 
 ## Development status
 
