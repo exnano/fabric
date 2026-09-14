@@ -22,6 +22,7 @@
 		49437BDEB954F27CE817D9CA /* MeilisearchDatabaseUpgrader.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3C6EA7D114A82FEBE553D54 /* MeilisearchDatabaseUpgrader.swift */; };
 		532CE8F01B439C6075149534 /* FabricCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC33DE673984F85787E36EB /* FabricCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		55CD2D2AFC20559ED3E74C34 /* JSONServiceInstanceStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CC55254DED31271273B6E45 /* JSONServiceInstanceStore.swift */; };
+		5DD0064B1779C998A116F089 /* LogFileReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A243F20E24DAC9679A08FE30 /* LogFileReader.swift */; };
 		658638AA76BD9D4E2CD8B32C /* JSONServiceInstanceStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DF58FF9CA2296DD7419CA1D /* JSONServiceInstanceStoreTests.swift */; };
 		671BE68D57F6AA3547A8DDB3 /* HomebrewLocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 025CE22568D1E0D2427A134C /* HomebrewLocator.swift */; };
 		671C5F600EB376DA2CD81169 /* FabricPaths.swift in Sources */ = {isa = PBXBuildFile; fileRef = 333469504D58C1AD6C76930F /* FabricPaths.swift */; };
@@ -37,6 +38,7 @@
 		9FD609AEED0F89223C6E5142 /* FabricCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 5AC33DE673984F85787E36EB /* FabricCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		A4E94B9C2B5694F2BBF7F1E1 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAA1C0568FD75B71D26E0D1C /* AppModel.swift */; };
 		AE5EFCA4EB6545F7C0D1A814 /* HomebrewOutputParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAD09E3564517BE11793097C /* HomebrewOutputParserTests.swift */; };
+		B7AE83E634C4A1995EC9C0DD /* LogFileReaderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B53751F6F8BFB4C96305E714 /* LogFileReaderTests.swift */; };
 		B84D796A9D971B0BDA1F88EE /* ServiceManagingBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = C501D330B2778E8C906B792F /* ServiceManagingBackend.swift */; };
 		B86C96D837673CBCC1EC09BE /* ServiceKindTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB51B475088ED07B271C0FFE /* ServiceKindTests.swift */; };
 		BB3691AF3E4A7CB7089EB7A9 /* DashboardSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = D953A730F61CA770D1637C94 /* DashboardSnapshot.swift */; };
@@ -115,9 +117,11 @@
 		7AB73CB216ECC1AB8B161E66 /* FabricRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FabricRuntime.swift; sourceTree = "<group>"; };
 		8084890C4CF95D6B62DC9616 /* LogViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogViewer.swift; sourceTree = "<group>"; };
 		87440D50E3FFB162907B399E /* ServiceStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceStatus.swift; sourceTree = "<group>"; };
+		A243F20E24DAC9679A08FE30 /* LogFileReader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileReader.swift; sourceTree = "<group>"; };
 		AB121122966FDE82973FF105 /* ProcessRunning.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessRunning.swift; sourceTree = "<group>"; };
 		AF58B8C81EC771BB0732903F /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
 		B3C6EA7D114A82FEBE553D54 /* MeilisearchDatabaseUpgrader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeilisearchDatabaseUpgrader.swift; sourceTree = "<group>"; };
+		B53751F6F8BFB4C96305E714 /* LogFileReaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileReaderTests.swift; sourceTree = "<group>"; };
 		B9844A31323BA3BF4634EDAA /* HomebrewOutputParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomebrewOutputParser.swift; sourceTree = "<group>"; };
 		C501D330B2778E8C906B792F /* ServiceManagingBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceManagingBackend.swift; sourceTree = "<group>"; };
 		C52917528C266B32061DCD91 /* FoundationProcessRunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoundationProcessRunnerTests.swift; sourceTree = "<group>"; };
@@ -257,6 +261,7 @@
 			isa = PBXGroup;
 			children = (
 				84A37C70E3E7555E778DDDEA /* Homebrew */,
+				EF5CBA9FC935C544ADEC5520 /* Logs */,
 				749C8E5DA0E32E59A579BFF4 /* Persistence */,
 				A956D4B26BA28674D09E4F29 /* Process */,
 				0941477B16F00A0989CB946D /* System */,
@@ -312,6 +317,7 @@
 				C73EFDC0D7AA643D67946CCE /* HomebrewDashboardTests.swift */,
 				EAD09E3564517BE11793097C /* HomebrewOutputParserTests.swift */,
 				6DF58FF9CA2296DD7419CA1D /* JSONServiceInstanceStoreTests.swift */,
+				B53751F6F8BFB4C96305E714 /* LogFileReaderTests.swift */,
 				FB51B475088ED07B271C0FFE /* ServiceKindTests.swift */,
 				75F4C92405891B905512F736 /* Fixtures */,
 			);
@@ -367,6 +373,14 @@
 				EC2ACA040AB1C75BD8F9616B /* ServiceRowView.swift */,
 			);
 			path = ServiceList;
+			sourceTree = "<group>";
+		};
+		EF5CBA9FC935C544ADEC5520 /* Logs */ = {
+			isa = PBXGroup;
+			children = (
+				A243F20E24DAC9679A08FE30 /* LogFileReader.swift */,
+			);
+			path = Logs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -513,6 +527,7 @@
 				0995E687C55DB57B84972501 /* HomebrewOutputParser.swift in Sources */,
 				EE958C61069263CEBE8A3B5D /* HomebrewWarningSummary.swift in Sources */,
 				55CD2D2AFC20559ED3E74C34 /* JSONServiceInstanceStore.swift in Sources */,
+				5DD0064B1779C998A116F089 /* LogFileReader.swift in Sources */,
 				49437BDEB954F27CE817D9CA /* MeilisearchDatabaseUpgrader.swift in Sources */,
 				1F188E0B5A3BAC8B9307ED40 /* MeilisearchMasterKeyStore.swift in Sources */,
 				9E8CE7D650D0E567156F340F /* ProcessRunning.swift in Sources */,
@@ -552,6 +567,7 @@
 				2E910788073F065BBEEFD144 /* HomebrewDashboardTests.swift in Sources */,
 				AE5EFCA4EB6545F7C0D1A814 /* HomebrewOutputParserTests.swift in Sources */,
 				658638AA76BD9D4E2CD8B32C /* JSONServiceInstanceStoreTests.swift in Sources */,
+				B7AE83E634C4A1995EC9C0DD /* LogFileReaderTests.swift in Sources */,
 				B86C96D837673CBCC1EC09BE /* ServiceKindTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
