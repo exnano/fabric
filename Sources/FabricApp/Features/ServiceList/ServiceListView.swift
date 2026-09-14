@@ -4,11 +4,26 @@ import SwiftUI
 struct ServiceListView: View {
     @EnvironmentObject private var model: AppModel
     @StateObject private var loginItem = LoginItemController()
+    @State private var isRestartAllConfirmationPresented = false
 
     var body: some View {
         VStack(spacing: 0) {
             dashboardHeader
             Divider()
+
+            if !model.dashboardNotices.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(model.dashboardNotices, id: \.self) { notice in
+                        Label(notice, systemImage: "exclamationmark.triangle")
+                            .font(.caption)
+                            .foregroundStyle(.orange)
+                            .textSelection(.enabled)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 8)
+            }
 
             if model.sortedServices.isEmpty, !model.isRefreshing {
                 ContentUnavailableView {
@@ -44,7 +59,28 @@ struct ServiceListView: View {
                     Label("Refresh Service Status", systemImage: "arrow.clockwise")
                 }
                 .disabled(model.isRefreshing)
-                .help("Refresh service status now. Fabric also refreshes automatically every eight seconds.")
+                .help("Refresh status, installed versions, and Homebrew locks. Fabric also refreshes automatically every eight seconds.")
+            }
+
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    isRestartAllConfirmationPresented = true
+                } label: {
+                    Label(
+                        model.isRestartingAll ? "Restarting All Services…" : "Restart All Services",
+                        systemImage: "arrow.triangle.2.circlepath"
+                    )
+                }
+                .disabled(!model.canRestartAll)
+                .help(model.isRestartingAll ? "Restarting services…" : "Restart all added services")
+                .alert("Restart all \(model.services.count) services?", isPresented: $isRestartAllConfirmationPresented) {
+                    Button("Cancel", role: .cancel) {}
+                    Button("Restart All", role: .destructive) {
+                        model.restartAllServices()
+                    }
+                } message: {
+                    Text("This briefly interrupts active connections and also starts stopped services. Fabric will restart each added service in turn. Package versions and databases will not be upgraded.")
+                }
             }
 
             ToolbarItem(placement: .primaryAction) {
@@ -94,7 +130,7 @@ struct ServiceListView: View {
             VStack(alignment: .leading, spacing: 5) {
                 Text("Services")
                     .font(.system(size: 30, weight: .semibold, design: .rounded))
-                Text("Homebrew packages stay pinned while Fabric manages their service lifecycle.")
+                Text("Locked packages stay pinned. Unlocked packages can be upgraded with Homebrew.")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
@@ -109,8 +145,22 @@ struct ServiceListView: View {
         .background(.bar)
     }
 
+    private var appVersionLabel: String {
+        guard let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String else {
+            return "Development Build"
+        }
+        if let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String {
+            return "Version \(version) (\(build))"
+        }
+        return "Version \(version)"
+    }
+
     private var loginItemFooter: some View {
         HStack {
+            Text(appVersionLabel)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .textSelection(.enabled)
             Spacer()
             loginItemControl
         }

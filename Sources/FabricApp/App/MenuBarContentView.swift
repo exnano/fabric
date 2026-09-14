@@ -170,6 +170,7 @@ private struct MenuBarServiceRow: View {
             .font(.caption.weight(.medium))
             .foregroundStyle(statusColor)
             .frame(width: 66, alignment: .leading)
+            .help(service.runtime.summary)
 
             if isBusy {
                 ProgressView()

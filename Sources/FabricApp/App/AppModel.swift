@@ -28,6 +28,7 @@ final class AppModel: ObservableObject {
     @Published private(set) var isRefreshing = false
     @Published private(set) var isLoadingCatalog = false
     @Published private(set) var isAddingService = false
+    @Published private(set) var isRestartingAll = false
 
     @Published var isAddServicePresented = false
     @Published var logPresentation: LogPresentation?
@@ -139,6 +140,44 @@ final class AppModel: ObservableObject {
         }
     }
 
+    var canRestartAll: Bool {
+        !services.isEmpty && busyServiceIDs.isEmpty && !isRestartingAll && !isAddingService
+    }
+
+    func restartAllServices() {
+        guard canRestartAll else { return }
+        let targets = sortedServices
+        let targetIDs = Set(targets.map(\.id))
+        isRestartingAll = true
+        busyServiceIDs.formUnion(targetIDs)
+
+        Task {
+            defer {
+                busyServiceIDs.subtract(targetIDs)
+                isRestartingAll = false
+            }
+
+            var failures: [String] = []
+            // Run sequentially to avoid overlapping service-manager operations.
+            // Reserve every target until the batch finishes to prevent row actions racing it.
+            for service in targets {
+                do {
+                    try await runtime.perform(.restart, serviceID: service.id)
+                } catch {
+                    failures.append("\(service.instance.name): \(error.localizedDescription)")
+                }
+            }
+            await refresh(showSpinner: false)
+
+            if !failures.isEmpty {
+                alert = AppAlert(
+                    title: "Some Services Could Not Restart",
+                    message: failures.joined(separator: "\n\n")
+                )
+            }
+        }
+    }
+
     func performPackageAction(_ action: PackageAction, on service: ManagedService) {
         guard !busyServiceIDs.contains(service.id) else { return }
         busyServiceIDs.insert(service.id)
@@ -192,6 +231,10 @@ final class AppModel: ObservableObject {
             do {
                 try await runtime.upgradeMeilisearchDatabase(serviceID: service.id)
                 await refresh(showSpinner: false)
+                alert = AppAlert(
+                    title: "Database Upgrade Launch Requested",
+                    message: "launchd accepted the Meilisearch job with --upgrade-db. This does not confirm startup or migration success. Check Logs and GET /tasks?types=UpgradeDatabase, then GET /tasks/TASK_UID until the upgrade task succeeds. Do not restart or change versions while migration is processing. Fabric does not automatically roll back failed upgrades."
+                )
             } catch {
                 present(error, title: "Could Not Upgrade Meilisearch Database")
                 await refresh(showSpinner: false)

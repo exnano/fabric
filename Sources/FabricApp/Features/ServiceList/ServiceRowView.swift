@@ -7,6 +7,7 @@ struct ServiceRowView: View {
     @State private var isUpgradeConfirmationPresented = false
     @State private var isDatabaseUpgradeConfirmationPresented = false
     @State private var isMasterKeyPresented = false
+    @State private var isStatusPresented = false
     let service: ManagedService
 
     private var isBusy: Bool {
@@ -18,8 +19,21 @@ struct ServiceRowView: View {
             serviceIcon
             serviceIdentity
 
-            StatusBadge(status: service.runtime.status)
-                .frame(width: 104, alignment: .leading)
+            Button {
+                isStatusPresented = true
+            } label: {
+                StatusBadge(status: service.runtime.status)
+            }
+            .buttonStyle(.plain)
+            .help("Show service status details")
+            .accessibilityLabel("\(service.instance.name): \(service.runtime.status.displayName). Show details")
+            .popover(isPresented: $isStatusPresented, arrowEdge: .bottom) {
+                ServiceStatusDetails(service: service) {
+                    isStatusPresented = false
+                    model.showLogs(for: service)
+                }
+            }
+            .frame(width: 104, alignment: .leading)
 
             actionControls
                 .frame(width: 132, alignment: .trailing)
@@ -60,12 +74,12 @@ struct ServiceRowView: View {
             isPresented: $isDatabaseUpgradeConfirmationPresented,
             titleVisibility: .visible
         ) {
-            Button("Restart with --upgrade-db") {
+            Button("Backup Verified — Restart with --upgrade-db", role: .destructive) {
                 model.upgradeMeilisearchDatabase(on: service)
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Database upgrades are not atomic. Create and verify a Meilisearch snapshot before continuing. Databases older than v1.12 may require dump migration instead.")
+            Text("Only continue after a snapshot task has succeeded and you have verified the backup. This stops Meilisearch and launches the installed binary with --upgrade-db; it does not install a new version. Requires flag support (v1.51+). Databases older than v1.12 require a dump migration. Upgrades are not atomic and can corrupt data on failure. Launch acceptance does not mean the upgrade task succeeded.")
         }
     }
 
@@ -97,8 +111,23 @@ struct ServiceRowView: View {
                     .font(.caption.monospacedDigit())
                     .foregroundStyle(.secondary)
             }
+
+            if service.runtime.status == .warning {
+                Button {
+                    isStatusPresented = true
+                } label: {
+                    Text(service.runtime.summary)
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+                }
+                .buttonStyle(.plain)
+                .help("Show the full warning and troubleshooting details")
+            }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.vertical, 10)
     }
 
     @ViewBuilder
@@ -172,6 +201,46 @@ struct ServiceRowView: View {
         case .stop: service.runtime.status == .offline
         case .restart: service.runtime.status == .offline
         }
+    }
+}
+
+private struct ServiceStatusDetails: View {
+    let service: ManagedService
+    let openLogs: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Label(service.instance.name, systemImage: service.instance.kind.symbolName)
+                .font(.headline)
+            StatusBadge(status: service.runtime.status)
+            Text(service.runtime.summary)
+                .textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+
+            if service.runtime.status == .warning {
+                Text("An exit code indicates a failed process, not its root cause. Check the latest log timestamps before taking action.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let package = service.instance.packageLock {
+                Divider()
+                Text("Installed: \(package.formula) \(package.installedVersion)")
+                    .font(.caption.monospaced())
+                Text(package.isPinned
+                    ? "Locked in Homebrew. Unlock to allow brew upgrade."
+                    : "Unlocked in Homebrew. Eligible for brew upgrade.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                Text("Installed package version—not a probe of the running process. A restart or database migration may still be required after an upgrade.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Button("Open Logs", systemImage: "doc.text.magnifyingglass", action: openLogs)
+        }
+        .padding(20)
+        .frame(width: 380)
     }
 }
 
